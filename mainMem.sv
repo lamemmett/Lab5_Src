@@ -1,3 +1,4 @@
+`protect
 module mainMem #(parameter LENGTH=1024, WIDTH=8, DELAY=50) (data_out, data_in, addr, we, clk);
 	parameter ADDR_LENGTH = $clog2(LENGTH);
 	
@@ -9,15 +10,22 @@ module mainMem #(parameter LENGTH=1024, WIDTH=8, DELAY=50) (data_out, data_in, a
 	
 	reg [99:0] counter = 0;
 	reg requestComplete = 0;
+	
+	// reset counter and request status when new addres is accessed
+	always @(addr) begin
+		counter = 0;
+		requestComplete = 0;
+	end
+	
+	// increment counter per clock cycle until delay is reached
 	always @(posedge clk) begin
 		counter++;
 		if (counter == (DELAY-1)) begin
 			requestComplete = 1;
 			counter = 0; end
-		else
-			requestComplete = 0;
 	end
 	
+	// return data out value once delay has been reached
 	always @(posedge requestComplete) begin
 		data_out = mem[addr];
 		if (we)
@@ -32,6 +40,7 @@ module mainMem #(parameter LENGTH=1024, WIDTH=8, DELAY=50) (data_out, data_in, a
 		end
 	end
 endmodule
+`endprotect
 
 module mainMem_testbench();
 	wire 		[5:0] data_out;
@@ -49,11 +58,11 @@ module mainMem_testbench();
 		data_in = 6'b0;
 		addr = 10;
 		we = 0;
-		#(50*t);
+		#(60*t);
 		assert (data_out == 10);	// access index 10, value should appear 5 cycles later
 		
 		addr = 50;
-		#(50*t);
+		#(60*t);
 		assert (data_out == 50);	// access index 50, value should appear 5 cycles later
 		
 		#(100*t);
