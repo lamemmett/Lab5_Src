@@ -1,0 +1,1670 @@
+# Reading C:/Program Files (x86)/Altera/modelsim_ase/tcl/vsim/pref.tcl 
+# ERROR: No extended dataflow license exists
+# vsim -gui Files {(x86)\Altera\modelsim_ase\win32aloem\modelsim.exe} 
+# ** Error: (vsim-3170) Could not find 'C:/Users/Emmett/Documents/College Courses/EE471/Lab 2/work.Files'.
+# 
+# Error loading design
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# ** Error: ./setZeroFlag.sv(28): Illegal declaration after the statement near line '25'.  Declarations must precede statements.  Look for stray semicolons.
+# ** Error: ./setZeroFlag.sv(28): near ")": syntax error, unexpected ')', expecting ';'
+# ** Error: ./setZeroFlag.sv(32): near "end": syntax error, unexpected end
+# ** Error: C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 23
+# C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog "./setZeroFlag.sv""
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# ** Error: ./setZeroFlag.sv(28): Illegal declaration after the statement near line '25'.  Declarations must precede statements.  Look for stray semicolons.
+# ** Error: ./setZeroFlag.sv(29): near ")": syntax error, unexpected ')', expecting ';'
+# ** Error: ./setZeroFlag.sv(31): near "0": syntax error, unexpected INTEGER NUMBER
+# ** Error: C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 23
+# C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog "./setZeroFlag.sv""
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# ** Error: ./setZeroFlag.sv(28): Illegal declaration after the statement near line '25'.  Declarations must precede statements.  Look for stray semicolons.
+# ** Error: ./setZeroFlag.sv(29): near ")": syntax error, unexpected ')', expecting ';'
+# ** Error: ./setZeroFlag.sv(33): near "end": syntax error, unexpected end
+# ** Error: C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 23
+# C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog "./setZeroFlag.sv""
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# ** Error: ./setZeroFlag.sv(28): Illegal declaration after the statement near line '25'.  Declarations must precede statements.  Look for stray semicolons.
+# ** Error: ./setZeroFlag.sv(29): near ")": syntax error, unexpected ')', expecting ';'
+# ** Error: ./setZeroFlag.sv(33): near "end": syntax error, unexpected end
+# ** Error: C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 23
+# C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog "./setZeroFlag.sv""
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# ** Error: ./setZeroFlag.sv(28): Illegal declaration after the statement near line '25'.  Declarations must precede statements.  Look for stray semicolons.
+# ** Error: ./setZeroFlag.sv(28): near ")": syntax error, unexpected ')', expecting ';'
+# ** Error: ./setZeroFlag.sv(32): near "end": syntax error, unexpected end
+# ** Error: C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+# Error in macro ./runlab.do line 23
+# C:/Program Files (x86)/Altera/modelsim_ase/win32aloem/vlog failed.
+#     while executing
+# "vlog "./setZeroFlag.sv""
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# 
+# Top level modules:
+# 	setZeroFlag_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module alu
+# -- Compiling module alu_testbench
+# 
+# Top level modules:
+# 	alu_testbench
+# vsim -lib work -voptargs=\"+acc\" -t 1ps setZeroFlag_testbench 
+# Loading sv_std.std
+# Loading work.setZeroFlag_testbench
+# Loading work.setZeroFlag
+# ** Error: Cannot open macro file: setZeroFlag_wave.do
+# Error in macro ./runlab.do line 34
+# Cannot open macro file: setZeroFlag_wave.do
+#     while executing
+# "do setZeroFlag_wave.do"
+add wave -position end  sim:/setZeroFlag_testbench/in
+add wave -position end  sim:/setZeroFlag_testbench/out
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: Emmett  Hostname: GALOK  ProcessID: 8556
+# 
+#           Attempting to use alternate WLF file "./wlftx7tasq".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlftx7tasq
+# 
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf {C:/Users/Emmett/Documents/College Courses/EE471/Lab 2/setZeroFlag_wave.do}
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# 
+# Top level modules:
+# 	setZeroFlag_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module alu
+# -- Compiling module alu_testbench
+# 
+# Top level modules:
+# 	alu_testbench
+# vsim -lib work -voptargs=\"+acc\" -t 1ps setZeroFlag_testbench 
+# Loading sv_std.std
+# Loading work.setZeroFlag_testbench
+# Loading work.setZeroFlag
+# WARNING: No extended dataflow license exists
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: Emmett  Hostname: GALOK  ProcessID: 8556
+# 
+#           Attempting to use alternate WLF file "./wlft2mn3yb".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlft2mn3yb
+# 
+# .main_pane.wave.interior.cs.body.pw.wf
+# .main_pane.structure.interior.cs.body.struct
+# .main_pane.objects.interior.cs.body.tree
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# 
+# Top level modules:
+# 	setZeroFlag_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module alu
+# -- Compiling module alu_testbench
+# 
+# Top level modules:
+# 	alu_testbench
+# vsim -lib work -voptargs=\"+acc\" -t 1ps setZeroFlag_testbench 
+# Loading sv_std.std
+# Loading work.setZeroFlag_testbench
+# Loading work.setZeroFlag
+# WARNING: No extended dataflow license exists
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: Emmett  Hostname: GALOK  ProcessID: 8556
+# 
+#           Attempting to use alternate WLF file "./wlfttgztxm".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlfttgztxm
+# 
+# .main_pane.wave.interior.cs.body.pw.wf
+# .main_pane.structure.interior.cs.body.struct
+# .main_pane.objects.interior.cs.body.tree
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# 
+# Top level modules:
+# 	setZeroFlag_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module alu
+# -- Compiling module alu_testbench
+# 
+# Top level modules:
+# 	alu_testbench
+# vsim -lib work -voptargs=\"+acc\" -t 1ps setZeroFlag_testbench 
+# Loading sv_std.std
+# Loading work.setZeroFlag_testbench
+# Loading work.setZeroFlag
+# WARNING: No extended dataflow license exists
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: Emmett  Hostname: GALOK  ProcessID: 8556
+# 
+#           Attempting to use alternate WLF file "./wlft7keqwe".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlft7keqwe
+# 
+# .main_pane.wave.interior.cs.body.pw.wf
+# .main_pane.structure.interior.cs.body.struct
+# .main_pane.objects.interior.cs.body.tree
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# 
+# Top level modules:
+# 	setZeroFlag_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module alu
+# -- Compiling module alu_testbench
+# 
+# Top level modules:
+# 	alu_testbench
+# vsim -lib work -voptargs=\"+acc\" -t 1ps setZeroFlag_testbench 
+# Loading sv_std.std
+# Loading work.setZeroFlag_testbench
+# Loading work.setZeroFlag
+# WARNING: No extended dataflow license exists
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: Emmett  Hostname: GALOK  ProcessID: 8556
+# 
+#           Attempting to use alternate WLF file "./wlftxm43fz".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlftxm43fz
+# 
+# .main_pane.wave.interior.cs.body.pw.wf
+# .main_pane.structure.interior.cs.body.struct
+# .main_pane.objects.interior.cs.body.tree
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# 
+# Top level modules:
+# 	setZeroFlag_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module alu
+# -- Compiling module alu_testbench
+# 
+# Top level modules:
+# 	alu_testbench
+# vsim -lib work -voptargs=\"+acc\" -t 1ps setZeroFlag_testbench 
+# Loading sv_std.std
+# Loading work.setZeroFlag_testbench
+# Loading work.setZeroFlag
+# WARNING: No extended dataflow license exists
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: Emmett  Hostname: GALOK  ProcessID: 8556
+# 
+#           Attempting to use alternate WLF file "./wlftyqxy7f".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlftyqxy7f
+# 
+# .main_pane.wave.interior.cs.body.pw.wf
+# .main_pane.structure.interior.cs.body.struct
+# .main_pane.objects.interior.cs.body.tree
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# 
+# Top level modules:
+# 	setZeroFlag_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module alu
+# -- Compiling module alu_testbench
+# 
+# Top level modules:
+# 	alu_testbench
+# vsim -lib work -voptargs=\"+acc\" -t 1ps setZeroFlag_testbench 
+# Loading sv_std.std
+# Loading work.setZeroFlag_testbench
+# Loading work.setZeroFlag
+# WARNING: No extended dataflow license exists
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: Emmett  Hostname: GALOK  ProcessID: 8556
+# 
+#           Attempting to use alternate WLF file "./wlftrk85id".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlftrk85id
+# 
+# .main_pane.wave.interior.cs.body.pw.wf
+# .main_pane.structure.interior.cs.body.struct
+# .main_pane.objects.interior.cs.body.tree
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# 
+# Top level modules:
+# 	setZeroFlag_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module alu
+# -- Compiling module alu_testbench
+# 
+# Top level modules:
+# 	alu_testbench
+# vsim -lib work -voptargs=\"+acc\" -t 1ps setZeroFlag_testbench 
+# Loading sv_std.std
+# Loading work.setZeroFlag_testbench
+# Loading work.setZeroFlag
+# WARNING: No extended dataflow license exists
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: Emmett  Hostname: GALOK  ProcessID: 8556
+# 
+#           Attempting to use alternate WLF file "./wlftc8w7dh".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlftc8w7dh
+# 
+# .main_pane.wave.interior.cs.body.pw.wf
+# .main_pane.structure.interior.cs.body.struct
+# .main_pane.objects.interior.cs.body.tree
+do runlab.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# 
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux2_1
+# -- Compiling module mux2_1_testbench
+# 
+# Top level modules:
+# 	mux2_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux4_1
+# -- Compiling module mux4_1_testbench
+# 
+# Top level modules:
+# 	mux4_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux16_1
+# -- Compiling module mux16_1_testbench
+# 
+# Top level modules:
+# 	mux16_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_1
+# -- Compiling module mux32_1_testbench
+# 
+# Top level modules:
+# 	mux32_1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module mux32_32_32
+# -- Compiling module mux32_32_32_testbench
+# 
+# Top level modules:
+# 	mux32_32_32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module D_FF
+# 
+# Top level modules:
+# 	D_FF
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module register
+# -- Compiling module register_testbench
+# 
+# Top level modules:
+# 	register_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder1
+# -- Compiling module decoder1_testbench
+# 
+# Top level modules:
+# 	decoder1_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder2
+# -- Compiling module decoder2_testbench
+# 
+# Top level modules:
+# 	decoder2_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder3
+# -- Compiling module decoder3_testbench
+# 
+# Top level modules:
+# 	decoder3_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module decoder5
+# -- Compiling module decoder5_testbench
+# 
+# Top level modules:
+# 	decoder5_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regfile
+# 
+# Top level modules:
+# 	regfile
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module regstim
+# 
+# Top level modules:
+# 	regstim
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module fullAdder
+# -- Compiling module fullAdder_testbench
+# 
+# Top level modules:
+# 	fullAdder_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module adder32
+# -- Compiling module adder32_testbench
+# 
+# Top level modules:
+# 	adder32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module xor32
+# -- Compiling module xor32_testbench
+# 
+# Top level modules:
+# 	xor32_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module setZeroFlag
+# -- Compiling module setZeroFlag_testbench
+# 
+# Top level modules:
+# 	setZeroFlag_testbench
+# Model Technology ModelSim ALTERA vlog 10.1e Compiler 2013.06 Jun 12 2013
+# -- Compiling module alu
+# -- Compiling module alu_testbench
+# 
+# Top level modules:
+# 	alu_testbench
+# vsim -lib work -voptargs=\"+acc\" -t 1ps setZeroFlag_testbench 
+# Loading sv_std.std
+# Loading work.setZeroFlag_testbench
+# Loading work.setZeroFlag
+# WARNING: No extended dataflow license exists
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+# 
+#           File in use by: Emmett  Hostname: GALOK  ProcessID: 8556
+# 
+#           Attempting to use alternate WLF file "./wlftsj3f97".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+# 
+#           Using alternate file: ./wlftsj3f97
+# 
+# .main_pane.wave.interior.cs.body.pw.wf
+# .main_pane.structure.interior.cs.body.struct
+# .main_pane.objects.interior.cs.body.tree
