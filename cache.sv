@@ -43,7 +43,9 @@ module cache #(parameter SIZE=1024, BLOCK_SIZE=32, ASSOCIATIVITY=1, DELAY=50)
 		if(reset) begin
 			for(i = 0; i < INDEX_SIZE; i++) begin
 				for(j = 0; j < ASSOCIATIVITY; j++) begin
-					valid[j][i] = 1'b0;
+					valid[i][j] = 1'b0;
+					tag[i][j] = {32'b0}[TAG_SIZE:1];
+					mem[i][j] = {128'b0}[BLOCK_SIZE:1];
 				end
 			end
 		end
