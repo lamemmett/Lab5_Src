@@ -1,103 +1,114 @@
 `protect // associativity 
-module cache #(parameter LENGTH=1024, BLOCK_SIZE=8, ASSOCIATIVITY=1, DELAY=50) (data_out, f_out, en_out, data_in, f_in, en_in, addr, we, clk);
-	parameter ADDR_LENGTH = $clog2(LENGTH);
+module cache #(parameter SIZE=1024, BLOCK_SIZE=32, ASSOCIATIVITY=1, DELAY=50) 
+	(data_out, req_out, miss_out, addr_in, data_in, req_in, miss_in, reset, clk);
+	
+	parameter ADDR_LENGTH = $clog2(SIZE);
 	parameter COUNTER_SIZE = $clog2(DELAY);
 	
 	parameter BYTE_SELECT_SIZE = $clog2(BLOCK_SIZE/8);
-	parameter INDEX_SIZE = $clog2(LENGTH);
+	parameter INDEX_SIZE = $clog2(SIZE/BLOCK_SIZE/ASSOCIATIVITY);
 	parameter TAG_SIZE = ADDR_LENGTH - BYTE_SELECT_SIZE - INDEX_SIZE;
 	
-	output reg [(BLOCK_SIZE-1):0] data_out;
-	output reg f_out, en_out;
+	output reg [31:0] data_out; // always 32 bits
+	output reg req_out, miss_out;
+	
+	input [(ADDR_LENGTH-1):0] addr_in;
 	input [(BLOCK_SIZE-1):0] data_in;
-	input f_in, en_in;
-	input [(ADDR_LENGTH-1):0] addr;
-	input we, clk;
-	reg [(BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] mem [(LENGTH-1):0];
+	input req_in, miss_in, reset, clk;
+
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(BLOCK_SIZE-1):0] mem;
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(TAG_SIZE-1):0] tag;
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] valid;
 	
-	reg [COUNTER_SIZE-1:0] counter = 0;
-	reg requestComplete = 0;
-		
-	reg [(TAG_SIZE-1):0] [(ASSOCIATIVITY-1):0] tag [(LENGTH-1):0];
-	reg [(ASSOCIATIVITY-1):0] valid [(LENGTH-1):0];
 	
-	integer i;
+	reg [COUNTER_SIZE-1:0] counter;
+	reg finish_delay;
+	reg found_data;
+	reg [31:0] data_f;
 	
-	// reset counter and request status when new address is accessed
-	always @(addr) begin
-		counter = 0;
-		requestComplete = 0;
-		f_out = 0;
-		
-		for(i = 0; i < LENGTH; i++) begin
-			if(addr[ADDR_LENGTH-1] == tag
-			
-			
-		end
-		
+	// reset counter, request, and miss status when recieving a miss
+	always @(posedge miss_in) begin
+		counter = 0; // initialize counter
+		req_out = 1'b0;
+		miss_out = 1'b0;
+		finish_delay = 1'b0;
+		found_data = 1'b0;
+		data_out = 32'hXXXXXXXX;
 	end
+	
+	integer i, j;
 	
 	// increment counter per clock cycle until delay is reached
 	always @(posedge clk) begin
-		if(en_in) begin
+		if(reset) begin
+			for(i = 0; i < INDEX_SIZE; i++) begin
+				for(j = 0; j < ASSOCIATIVITY; j++) begin
+					valid[j][i] = 1'b0;
+				end
+			end
+		end
+		if(miss_in) begin
 			counter++;
 			if (counter == (DELAY-1)) begin
-				requestComplete = 1;
-				counter = 0; end
+				finish_delay = 1'b1;
+				counter = 1'b0; 
+			end
 		end
 		else counter = 0;
 	end
+		
+	integer k, l;
 	
 	// return data out value once delay has been reached
-	always @(posedge requestComplete) begin
-		if(en_in) begin
-			data_out = mem[addr];
-			if(we && f_in)
-				mem[addr] <= data_in;
+	always @(posedge finish_delay) begin
+		for(k = 0; k < INDEX_SIZE; k++) begin
+			for(l = 0; l < ASSOCIATIVITY; l++) begin
+				if(tag[l][k] == addr_in[(ADDR_LENGTH-1):(BYTE_SELECT_SIZE+INDEX_SIZE)]
+					&& valid[l][k] == 1'b1) begin
+					found_data = 1'b1;
+					data_out = mem[l][k];
+				end
+			end
+		end
+		if(!found_data) begin
+			req_out = 1'b1;
+			
+			//data_out =;
+		end
+		else begin
+			req_out = 1'b1;
+			data_out = 32'hXXXXXXXX;
 		end
 	end
-	
-	initial begin
-		// initialize each memory location to its index
-		integer i;
-		for (i=0; i<LENGTH; i++) begin
-			mem[i] = i;
-		end
-	end
+
 endmodule
 `endprotect
 
 module cache_testbench();
-	wire [7:0] data_out;
-	wire f_out, en_out;
-	reg [7:0] data_in;
-	reg [8:0] addr;
-	reg f_in, en_in;;
-	reg we, clk;
+	wire [31:0] data_out; // always 32 bits
+	wire req_out, miss_out;
+	
+	reg [8:0] addr_in;
+	reg [31:0] data_in;
+	reg req_in, miss_in, reset, clk;
+	
 	parameter t = 10;
 	parameter d = 20;
 	
-	cache #(.LENGTH(512), .BLOCK_SIZE(), .DELAY(d)) test (.data_out, .f_out, .en_out, .data_in, .f_in, .en_in, .addr, .we, .clk);
+	cache #(.SIZE(512), .BLOCK_SIZE(), .ASSOCIATIVITY(), .DELAY(d))
+	test (.data_out, .req_out, .miss_out, .addr_in, .data_in, .req_in, .miss_in, .reset, .clk);
 	
 	always #(t/2) clk = ~clk;
 	
 	initial begin
-		clk = 0;
-		addr = 10;
-		we = 0;
-		
-		data_in = 8'b0;
-		f_in = 0;
-		en_in = 1;
+		reset = 1'b1; #(t/2);
+		reset = 1'b0; #(t/2);
 		
 		#(d*t);
-		assert (data_out == 10);	// access index 10, value should appear 5 cycles later
 		
-		addr = 50;
-		#(d*t);
-		assert (data_out == 50);	// access index 50, value should appear 5 cycles later
+		addr_in = 50;
 		
-		#(100*t);
+		#(d*5*t);
 		$stop;
 	end
 endmodule 
