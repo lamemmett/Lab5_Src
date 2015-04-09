@@ -22,14 +22,14 @@ module dm_cache (data_out, found_data, miss, addr_in, data_in, writeEnable, enab
 	wire [INDEX_SIZE-1:0]			cacheIndex 	= addr_in[(BYTE_SELECT_SIZE+INDEX_SIZE-1):(BYTE_SELECT_SIZE)];
 	wire [TAG_SIZE-1:0]				tag 			= addr_in[(ADDR_LENGTH-1):(BYTE_SELECT_SIZE+INDEX_SIZE)];
 
-	reg [(INDEX_SIZE-1):0] [(BLOCK_SIZE-1):0] data;
+	reg [(SIZE/BLOCK_SIZE-1):0] [(BLOCK_SIZE-1):0] data;
 	reg [(INDEX_SIZE-1):0] [(TAG_SIZE-1):0] tags;
 	reg [(INDEX_SIZE-1):0] valid_bits;
 	
 	initial begin
 		valid_bits[0] = 1;
 		tags[0] = 6'b000011;
-		data[0] = 32'hFFFFFFFF;
+		data[0] = 32'b1;
 	end
 	
 	reg waiting = 0;
@@ -43,7 +43,7 @@ module dm_cache (data_out, found_data, miss, addr_in, data_in, writeEnable, enab
 		counter = 1;
 		waiting = 1;
 		finish_delay = 0;
-		data_out = 8'bx;
+		data_out = 32'bx;
 		found_data = 1'bx;
 	end
 	
@@ -60,7 +60,7 @@ module dm_cache (data_out, found_data, miss, addr_in, data_in, writeEnable, enab
 	always @(posedge finish_delay) begin
 		if (tags[cacheIndex] == tag && valid_bits[cacheIndex] == 1) begin
 			found_data = 1;
-			data_out = data[cacheIndex][31:0]; end
+			data_out = data[cacheIndex]; end
 		else begin
 			miss = 1;
 			found_data = 0; end
@@ -68,9 +68,12 @@ module dm_cache (data_out, found_data, miss, addr_in, data_in, writeEnable, enab
 	
 	// wait for lower cache to return data
 	always @(posedge writeEnable) begin
-		
+		data_out = data_in;
+		valid_bits[cacheIndex] = 1;
+		tags[cacheIndex] = tag;
+		data[cacheIndex] = data_in;
 		found_data = 1;
-	end	
+	end
 endmodule
 `endprotect
 
@@ -86,7 +89,7 @@ module dm_cache_testbench();
 	parameter d = 20;
 	
 	dm_cache	cache (.data_out, .found_data, .miss, .addr_in, .data_in, .writeEnable, .enable, .reset, .clk);
-	//mainMem	memory (.data_out(dontCare), requestComplete, data_in, addr, we, enable, clk)
+	mainMem	memory (.data_out(data_in), .requestComplete(writeEnable), .data_in(32'b0), .addr(addr_in), .we(1'b0), .enable(miss), .clk);
 	
 	always #(t/2) clk = ~clk;
 	
@@ -101,7 +104,12 @@ module dm_cache_testbench();
 		enable = 1;
 		#(100*t);
 		
-		addr_in = 0;
+		addr_in = 4;
+		enable = 0;
+		#t;
+		enable = 1;
+		#(200*t);
+		
 		enable = 0;
 		#t;
 		enable = 1;

@@ -4,7 +4,7 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, DELAY=50) (data_out, requ
 	parameter COUNTER_SIZE = $clog2(DELAY);
 	
 	output reg [(BLOCK_SIZE-1):0] data_out;
-	output reg requestComplete = 0;
+	output reg requestComplete;
 	
 	input [(BLOCK_SIZE-1):0] data_in;
 	input [(ADDR_LENGTH-1):0] addr;
@@ -14,6 +14,8 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, DELAY=50) (data_out, requ
 	reg [(BLOCK_SIZE-1):0] mem [(LENGTH-1):0];
 	// counter to track delay
 	reg [COUNTER_SIZE-1:0] counter = 1;
+	
+	reg finishDelay = 0;
 	
 	// reset counter and request status when new address is accessed
 	always @(posedge enable) begin
@@ -26,14 +28,15 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, DELAY=50) (data_out, requ
 		if (!requestComplete) begin
 			counter++; end
 		if (counter == (DELAY)) begin
-			requestComplete = 1; end
+			finishDelay = 1; end
 	end
 	
 	// return data out value once delay has been reached
-	always @(posedge requestComplete) begin
+	always @(posedge finishDelay) begin
 		data_out = mem[addr];
-		if (we)
-			mem[addr] <= data_in;
+		if (we) begin
+			mem[addr] <= data_in; end
+		requestComplete = 1;
 	end
 	
 	initial begin
