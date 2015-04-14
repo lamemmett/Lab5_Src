@@ -20,6 +20,7 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, DELAY=50) (data_out, requ
 	// reset counter and request status when new address is accessed
 	always @(posedge enable) begin
 		counter = 1;
+		finishDelay = 0;
 		requestComplete = 0;
 	end
 	
