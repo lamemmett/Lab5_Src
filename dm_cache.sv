@@ -1,5 +1,5 @@
 `protect // associativity 
-module dm_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_SIZE=32)
+module dm_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_SIZE=32, ASSOCIATIVITY=1)
 					  (data_out, found_data, miss, addr_in, data_in, writeEnable, enable, reset, clk);
 	parameter COUNTER_SIZE = $clog2(DELAY);
 	
@@ -19,9 +19,9 @@ module dm_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_SIZE=32)
 	wire [TAG_SIZE-1:0]				tag 			= addr_in[(ADDR_LENGTH-1):(BYTE_SELECT_SIZE+INDEX_SIZE)];
 
 	// CACHE CONTENTS
-	reg [(SIZE/BLOCK_SIZE-1):0] [(BLOCK_SIZE-1):0] 	data;
-	reg [(SIZE/BLOCK_SIZE-1):0] [(TAG_SIZE-1):0] 	tags;
-	reg [(SIZE/BLOCK_SIZE-1):0] 							valid_bits;
+	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(BLOCK_SIZE-1):0] data;
+	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(TAG_SIZE-1):0] 	tags;
+	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0]							valid_bits;
 	
 	// various counters and flags
 	reg waiting = 0;
