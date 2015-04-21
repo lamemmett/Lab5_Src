@@ -1,10 +1,11 @@
 module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 	(index, asso_index, select, write_trigger, read_trigger, reset);
 	parameter COUNT_SIZE = $clog2(ASSOCIATIVITY);
+	parameter NUM_INDICES = $clog2(INDEX_SIZE);
 	
-	output reg [(COUNT_SIZE-1):0] select;
+	output reg [(COUNT_SIZE-1):0] select = 0;
 	
-	input [(INDEX_SIZE-1):0] index;
+	input [(NUM_INDICES-1):0] index;
 	input [(COUNT_SIZE-1):0] asso_index;
 	
 	input write_trigger, read_trigger, reset;
@@ -30,12 +31,12 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 	
 	always @(posedge write_trigger) begin
 		for(j = 0; j < ASSOCIATIVITY; j++)begin
+			if(mem[index][j] == 0) begin
+				select = j;
+			end
 			mem[index][j] -= 1'b1;
 			if(mem[index][j] >= ASSOCIATIVITY) begin
 				mem[index][j] = ASSOCIATIVITY-1;
-			end
-			if(mem[index][j] == 0) begin
-				select = j;
 			end
 		end
 	end

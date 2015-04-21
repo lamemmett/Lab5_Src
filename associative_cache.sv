@@ -27,9 +27,18 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 	reg waiting = 0;
 	reg [COUNTER_SIZE-1:0] counter;
 	reg finish_delay = 0;
+	reg LRUread = 0;
+	parameter NUM_ASSO_BITS = $clog2(ASSOCIATIVITY);
+	reg [(NUM_ASSO_BITS-1):0] asso_index;
+	wire [(NUM_ASSO_BITS-1):0] LRUoutput;
+	
+	// instantiate LRU module
+	lru #(.INDEX_SIZE(SIZE/BLOCK_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY)) LRU
+		  (cacheIndex, asso_index, LRUoutput, writeEnable, LRUread, reset);
 	
 	// enable signal initializes counter nulls the output value
 	always @(posedge enable) begin
+		LRUread = 0;
 		miss = 0;
 		counter = 1;
 		waiting = 1;
@@ -52,6 +61,8 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 	always @(posedge finish_delay) begin
 		for (j=0; j<ASSOCIATIVITY; j++) begin
 			if(tags[cacheIndex][j] == tag && valid_bits[cacheIndex][j] == 1) begin
+				asso_index = j;
+				LRUread = 1;
 				found_data = 1;
 				data_out = data[cacheIndex][j]; end
 			else if (j == (ASSOCIATIVITY - 1)) begin
@@ -63,9 +74,9 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 	// wait for lower cache to return data and write to cache
 	always @(posedge writeEnable) begin
 		data_out = data_in;
-		valid_bits[cacheIndex][ASSOCIATIVITY-1] = 1;
-		tags[cacheIndex][ASSOCIATIVITY-1] = tag;
-		data[cacheIndex][ASSOCIATIVITY-1] = data_in;
+		valid_bits[cacheIndex][LRUoutput] = 1;
+		tags[cacheIndex][LRUoutput] = tag;
+		data[cacheIndex][LRUoutput] = data_in;
 		found_data = 1;
 	end
 endmodule
