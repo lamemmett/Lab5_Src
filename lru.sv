@@ -35,7 +35,7 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 				mem[index][j] = ASSOCIATIVITY-1;
 			end
 			if(mem[index][j] == 0) begin
-				select = mem[index][j];
+				select = j;
 			end
 		end
 	end
@@ -53,7 +53,7 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 				mem[index][j] -= 1'b1;
 			end
 			if(mem[index][j] == 0) begin
-				select = mem[index][j];
+				select = j;
 			end
 		end
 	end	
