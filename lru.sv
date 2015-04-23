@@ -41,12 +41,14 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 		end
 	end
 	
+	// NEEDS FIXING
 	reg [(ASSOCIATIVITY-1):0] v;
 	always @(posedge read_trigger) begin
 		for(j = 0; j < ASSOCIATIVITY; j++)begin
 			if(j == asso_index) begin
 				v = mem[index][j];
-				mem[index][j] = ASSOCIATIVITY;
+				if (v != 0)
+					mem[index][j] = ASSOCIATIVITY;
 			end
 		end
 		for(j = 0; j < ASSOCIATIVITY; j++)begin
