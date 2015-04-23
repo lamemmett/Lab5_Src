@@ -1,5 +1,5 @@
 `protect // associativity 
-module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_SIZE=32, ASSOCIATIVITY=2)
+module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_SIZE=32, ASSOCIATIVITY=3)
 					  (data_out, found_data, miss, addr_in, data_in, writeEnable, enable, reset, clk);
 	parameter COUNTER_SIZE = $clog2(DELAY);
 	
@@ -7,10 +7,10 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 	parameter INDEX_SIZE = $clog2(SIZE/BLOCK_SIZE); // 2
 	parameter TAG_SIZE = ADDR_LENGTH - BYTE_SELECT_SIZE - INDEX_SIZE; // 6
 	
-	output reg [31:0] data_out; // 8 bits
+	output reg [31:0] data_out;
 	output reg found_data, miss = 0;
 	
-	input [(ADDR_LENGTH-1):0] addr_in; // 10 bits
+	input [(ADDR_LENGTH-1):0] addr_in;
 	input [(BLOCK_SIZE-1):0] data_in;
 	input writeEnable, enable, reset, clk;
 	
@@ -44,7 +44,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 		waiting = 1;
 		finish_delay = 0;
 		data_out = 32'bx;
-		found_data = 1'bx;
+		found_data = 1'b0;
 	end
 	
 	// increment counter per clock cycle, once delay has been reached set flags
@@ -57,22 +57,21 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 	end
 	
 	// Once delay done, check if data exists and return it
-	integer j;
 	always @(posedge finish_delay) begin
-		for (j=0; j<ASSOCIATIVITY; j++) begin
+		for (int j=0; j<ASSOCIATIVITY; j++) begin
 			if(tags[cacheIndex][j] == tag && valid_bits[cacheIndex][j] == 1) begin
 				asso_index = j;
 				LRUread = 1;
 				found_data = 1;
 				data_out = data[cacheIndex][j]; end
-			else if (j == (ASSOCIATIVITY - 1)) begin
-				miss = 1;
-				found_data = 0; end
+			else if (j == (ASSOCIATIVITY - 1) && found_data == 0) begin
+				miss = 1; end
 		end
 	end
 	
 	// wait for lower cache to return data and write to cache
 	always @(posedge writeEnable) begin
+		#1;	// gimicky delay fix... gives LRU time to update output
 		data_out = data_in;
 		valid_bits[cacheIndex][LRUoutput] = 1;
 		tags[cacheIndex][LRUoutput] = tag;
@@ -112,7 +111,7 @@ module associative_cache_testbench();
 		#(d*t);
 		
 		// fill up both caches
-		for (i=0; i <32; i+=4) begin
+		for (i=0; i <160; i+=4) begin
 			addr_in = i;
 			enable = 1;
 			#(100*t);
