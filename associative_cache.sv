@@ -24,7 +24,6 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0]							valid_bits;
 	
 	// various counters and flags
-	reg waiting = 0;
 	reg [COUNTER_SIZE-1:0] counter;
 	reg finish_delay = 0;
 	reg LRUread = 0;
@@ -36,47 +35,96 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 	lru #(.INDEX_SIZE(SIZE/BLOCK_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY)) LRU
 		  (cacheIndex, asso_index, LRUoutput, writeEnable, LRUread, reset);
 	
-	// enable signal initializes counter nulls the output value
+	/* enable signal initializes counter nulls the output value
 	always @(posedge enable) begin
 		LRUread = 0;
 		miss = 0;
 		counter = 1;
-		waiting = 1;
 		finish_delay = 0;
 		data_out = 32'bx;
 		found_data = 1'b0;
+	end*/
+	
+	parameter [2:0] IDLE = 3'b000, WAITING = 3'b001, READ = 3'b011, WRITE = 3'b100;
+	reg [2:0] state;
+	reg [2:0] next_state;
+	
+	always @(*) begin
+		// next state logic
+		case (state)
+				IDLE:		begin
+								if (enable)
+									next_state = WAITING;
+								else
+									next_state = IDLE;
+							end
+				WAITING:	begin
+								if (counter == DELAY - 1)
+									next_state = READ;
+								else
+									next_state = WAITING;
+							end
+				READ: 	begin
+								if (found_data)
+									next_state = IDLE;
+								else if (miss)
+									next_state = WRITE;
+								else
+									next_state = READ;
+							end
+				WRITE:	begin
+								if (found_data)
+									next_state = IDLE;
+								else
+									next_state = WRITE;
+							end
+			endcase
 	end
 	
-	// increment counter per clock cycle, once delay has been reached set flags
+	// output logic
 	always @(posedge clk) begin
-		if (waiting) begin
-			counter++; end
-		if (counter == DELAY) begin
-			waiting = 0;
-			finish_delay = 1; end
-	end
-	
-	// Once delay done, check if data exists and return it
-	always @(posedge finish_delay) begin
-		for (int j=0; j<ASSOCIATIVITY; j++) begin
-			if(tags[cacheIndex][j] == tag && valid_bits[cacheIndex][j] == 1) begin
-				asso_index = j;
-				LRUread = 1;
-				found_data = 1;
-				data_out = data[cacheIndex][j][((byteSelect+1)*RETURN_SIZE-1) -: RETURN_SIZE]; end
-			else if (j == (ASSOCIATIVITY - 1) && found_data == 0) begin
-				miss = 1; end
+		if (reset) begin
+			state <= IDLE;
+			next_state <= IDLE;
 		end
-	end
-	
-	// wait for lower cache to return data and write to cache
-	always @(posedge writeEnable) begin
-		#1;	// gimicky delay fix... gives LRU time to update output
-		data_out = data_in;
-		valid_bits[cacheIndex][LRUoutput] = 1;
-		tags[cacheIndex][LRUoutput] = tag;
-		data[cacheIndex][LRUoutput] = data_in;
-		found_data = 1;
+		case (state)
+			IDLE:		begin
+							LRUread <= 0;
+							miss <= 0;
+							counter <= 1;
+							finish_delay <= 0;
+							found_data <= 0;
+							// null out output if about to perform another search
+							if (next_state == WAITING)
+								data_out <= 'x;
+						end
+			WAITING:	begin
+							counter <= counter + 1;
+						end
+			READ: 	begin
+							for (int j=0; j<ASSOCIATIVITY; j++) begin
+								if(tags[cacheIndex][j] == tag && valid_bits[cacheIndex][j] == 1) begin
+									asso_index <= j;
+									LRUread <= 1;
+									data_out <= data[cacheIndex][j][((byteSelect+1)*RETURN_SIZE-1) -: RETURN_SIZE];
+									found_data <= 1; 
+									break;	end
+								else if (j == (ASSOCIATIVITY - 1)) begin
+									miss <= 1; end
+							end
+						end
+			WRITE:	begin
+							miss <= 0;
+							if (writeEnable) begin
+								data_out <= data_in;
+								valid_bits[cacheIndex][0] <= 1;
+								tags[cacheIndex][0] <= tag;
+								data[cacheIndex][0] <= data_in;
+								found_data <= 1; 
+							end
+						end
+		endcase
+		state = next_state;
 	end
 endmodule
 `endprotect
@@ -104,27 +152,25 @@ module associative_cache_testbench();
 	always #(t/2) clk = ~clk;
 		
 	integer i = 0;
-	
 	initial begin
-		clk = 0;
-		reset = 1'b1; #(t/2);
-		reset = 1'b0; #(t/2);
+		clk <= 0;
+		reset <= 1'b1;			@(posedge clk);
+		reset <= 1'b0;			@(posedge clk);
 		
-		#(d*t);
+									@(posedge clk);
 		
 		// fill up both caches
 		for (i=0; i<128; i++) begin
-			addr_in = i;
-			enable = 1;
+			addr_in <= i;		@(posedge clk);
+			enable <= 1;		@(posedge clk);
+			enable <= 0;		@(posedge clk);
 			#(100*t);
-			enable = 0;
-			#t;
 		end
 		
 		// access an element that is in L2 but had capacity overflow in L1
 		addr_in = 4;
 		enable = 1;
-		#(100*t);
+		#(30*t);
 		enable = 0;
 		#t;
 		
