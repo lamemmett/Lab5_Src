@@ -1,5 +1,5 @@
 `protect // associativity 
-module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_SIZE=32, RETURN_SIZE=8, ASSOCIATIVITY=2)
+module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_SIZE=32, RETURN_SIZE=8, ASSOCIATIVITY=4)
 					  (data_out, found_data, miss, addr_in, data_in, writeEnable, enable, reset, clk);
 	parameter COUNTER_SIZE = $clog2(DELAY);
 	
@@ -27,27 +27,18 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 	reg [COUNTER_SIZE-1:0] counter;
 	reg finish_delay = 0;
 	reg LRUread = 0;
+	reg write_trigger = 0;
 	parameter NUM_ASSO_BITS = $clog2(ASSOCIATIVITY);
 	reg [(NUM_ASSO_BITS-1):0] asso_index = 0;
 	wire [(NUM_ASSO_BITS-1):0] LRUoutput;
 	
 	// instantiate LRU module
 	lru #(.INDEX_SIZE(SIZE/BLOCK_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY)) LRU
-		  (cacheIndex, asso_index, LRUoutput, writeEnable, LRUread, reset);
+		  (cacheIndex, asso_index, LRUoutput, write_trigger, LRUread, reset, clk);
 	
-	/* enable signal initializes counter nulls the output value
-	always @(posedge enable) begin
-		LRUread = 0;
-		miss = 0;
-		counter = 1;
-		finish_delay = 0;
-		data_out = 32'bx;
-		found_data = 1'b0;
-	end*/
-	
-	parameter [2:0] IDLE = 3'b000, WAITING = 3'b001, READ = 3'b011, WRITE = 3'b100;
-	reg [2:0] state;
-	reg [2:0] next_state;
+	parameter [1:0] IDLE = 2'b00, WAITING = 2'b01, READ = 2'b10, WRITE = 2'b11;
+	reg [1:0] state;
+	reg [1:0] next_state;
 	
 	always @(*) begin
 		// next state logic
@@ -59,7 +50,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 									next_state = IDLE;
 							end
 				WAITING:	begin
-								if (counter == DELAY - 1)
+								if (counter >= DELAY - 1)
 									next_state = READ;
 								else
 									next_state = WAITING;
@@ -89,6 +80,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 		end
 		case (state)
 			IDLE:		begin
+							write_trigger <= 0;
 							LRUread <= 0;
 							miss <= 0;
 							counter <= 1;
@@ -107,23 +99,31 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 									asso_index <= j;
 									LRUread <= 1;
 									data_out <= data[cacheIndex][j][((byteSelect+1)*RETURN_SIZE-1) -: RETURN_SIZE];
-									found_data <= 1; 
+									found_data <= 1;
+									LRUread <= 1;
 									break;	end
 								else if (j == (ASSOCIATIVITY - 1)) begin
-									miss <= 1; end
+									miss <= 1;
+									end
 							end
 						end
 			WRITE:	begin
+							write_trigger <= 0;
 							miss <= 0;
 							if (writeEnable) begin
 								data_out <= data_in;
-								valid_bits[cacheIndex][0] <= 1;
-								tags[cacheIndex][0] <= tag;
-								data[cacheIndex][0] <= data_in;
-								found_data <= 1; 
+								valid_bits[cacheIndex][LRUoutput] <= 1;
+								tags[cacheIndex][LRUoutput] <= tag;
+								data[cacheIndex][LRUoutput] <= data_in;
+								found_data <= 1;
 							end
 						end
 		endcase
+		
+		if(state == READ && next_state == WRITE)
+			write_trigger <= 1;
+		if(state == READ && next_state == IDLE)
+			LRUread <= 0;
 		state = next_state;
 	end
 endmodule

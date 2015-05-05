@@ -1,5 +1,5 @@
 module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
-	(index, asso_index, select, write_trigger, read_trigger, reset);
+	(index, asso_index, select, write_trigger, read_trigger, reset, clk);
 	parameter COUNT_SIZE = $clog2(ASSOCIATIVITY);
 	parameter NUM_INDICES = $clog2(INDEX_SIZE);
 	
@@ -8,9 +8,10 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 	input [(NUM_INDICES-1):0] index;
 	input [(COUNT_SIZE-1):0] asso_index;
 	
-	input write_trigger, read_trigger, reset;
+	input write_trigger, read_trigger, reset, clk;
 	
 	reg [(INDEX_SIZE-1):0][(ASSOCIATIVITY-1):0][(COUNT_SIZE-1):0] mem;
+	reg [(ASSOCIATIVITY-1):0] v;
 	
 	integer i, j;
 	initial begin
@@ -20,46 +21,49 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 			end
 		end
 	end
-  
-	always @(posedge reset) begin
-		for(i = 0; i < INDEX_SIZE; i++) begin
+	
+	always @(posedge clk) begin
+		// reset cache contents
+		if (reset) begin
+			for(i = 0; i < INDEX_SIZE; i++) begin
+				for(j = 0; j < ASSOCIATIVITY; j++)begin
+					mem[i][j] = j;
+				end
+			end
+		end
+		
+		if (write_trigger) begin
 			for(j = 0; j < ASSOCIATIVITY; j++)begin
-				mem[i][j] = j;
-			end
-		end
-	end
-	
-	always @(posedge write_trigger) begin
-		for(j = 0; j < ASSOCIATIVITY; j++)begin
-			if(mem[index][j] == 0) begin
-				select = j;
-			end
-			mem[index][j] -= 1'b1;
-			if(mem[index][j] >= ASSOCIATIVITY) begin
-				mem[index][j] = ASSOCIATIVITY-1;
-			end
-		end
-	end
-	
-	// NEEDS FIXING
-	reg [(ASSOCIATIVITY-1):0] v;
-	always @(posedge read_trigger) begin
-		for(j = 0; j < ASSOCIATIVITY; j++)begin
-			if(j == asso_index) begin
-				v = mem[index][j];
-				if (v != 0)
-					mem[index][j] = ASSOCIATIVITY;
-			end
-		end
-		for(j = 0; j < ASSOCIATIVITY; j++)begin
-			if(mem[index][j] > v ) begin
+				if(mem[index][j] == 0) begin
+					select <= j;
+				end
 				mem[index][j] -= 1'b1;
-			end
-			if(mem[index][j] == 0) begin
-				select = j;
+				if(mem[index][j] >= ASSOCIATIVITY) begin
+					mem[index][j] <= ASSOCIATIVITY-1;
+				end
 			end
 		end
-	end	
+		
+		// NEEDS FIXING
+		if (read_trigger) begin
+			for(j = 0; j < ASSOCIATIVITY; j++)begin
+				if(j == asso_index) begin
+					v = mem[index][j];
+				end
+			end
+			for(j = 0; j < ASSOCIATIVITY; j++)begin
+				if(mem[index][j] > v ) begin
+					mem[index][j] -= 1'b1;
+				end
+				if(mem[index][j] == v) begin
+					mem[index][j] = ASSOCIATIVITY - 1;
+				end
+				if(mem[index][j] == 0) begin
+					select = j;
+				end
+			end
+		end
+	end
 endmodule
 
 module lru_testbench();
