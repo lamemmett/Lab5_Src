@@ -22,21 +22,27 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 		end
 	end
 	
+	always @(*) begin
+		select = select;
+		for(j = 0; j < ASSOCIATIVITY; j++)begin
+			if(mem[index][j] == 0) begin
+				select = j;
+			end
+		end
+	end
+	
 	always @(posedge clk) begin
 		// reset cache contents
 		if (reset) begin
 			for(i = 0; i < INDEX_SIZE; i++) begin
 				for(j = 0; j < ASSOCIATIVITY; j++)begin
-					mem[i][j] = j;
+					mem[i][j] <= j;
 				end
 			end
 		end
 		
 		if (write_trigger) begin
 			for(j = 0; j < ASSOCIATIVITY; j++)begin
-				if(mem[index][j] == 0) begin
-					select <= j;
-				end
 				mem[index][j] -= 1'b1;
 				if(mem[index][j] >= ASSOCIATIVITY) begin
 					mem[index][j] <= ASSOCIATIVITY-1;
@@ -48,19 +54,19 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 		if (read_trigger) begin
 			for(j = 0; j < ASSOCIATIVITY; j++)begin
 				if(j == asso_index) begin
-					v = mem[index][j];
+					v <= mem[index][j];
 				end
 			end
 			for(j = 0; j < ASSOCIATIVITY; j++)begin
 				if(mem[index][j] > v ) begin
-					mem[index][j] -= 1'b1;
+					mem[index][j] <= mem[index][j] - 1'b1;
 				end
 				if(mem[index][j] == v) begin
-					mem[index][j] = ASSOCIATIVITY - 1;
+					mem[index][j] <= ASSOCIATIVITY - 1;
 				end
-				if(mem[index][j] == 0) begin
-					select = j;
-				end
+//				if(mem[index][j] == 0) begin
+//					select <= j;
+//				end
 			end
 		end
 	end

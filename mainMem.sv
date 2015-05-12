@@ -1,10 +1,10 @@
 `protect
-module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, DELAY=50) (data_out, requestComplete, data_in, addr, we, enable, clk);
+module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=0) (data_out, done, data_in, addr, we, enable, clk);
 	parameter ADDR_LENGTH = $clog2(LENGTH);
-	parameter COUNTER_SIZE = $clog2(DELAY);
+	parameter COUNTER_SIZE = $clog2(MEM_DELAY);
 	
 	output reg [(BLOCK_SIZE-1):0] data_out;
-	output reg requestComplete;
+	output reg done;
 	
 	input [(BLOCK_SIZE-1):0] data_in;
 	input [(ADDR_LENGTH-1):0] addr;
@@ -13,33 +13,62 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, DELAY=50) (data_out, requ
 	// state-holding memory
 	reg [(BLOCK_SIZE-1):0] mem [(LENGTH-1):0];
 	// counter to track delay
-	reg [COUNTER_SIZE-1:0] counter = 1;
+	reg [COUNTER_SIZE-1:0] counter = 0;
 	
-	reg finishDelay = 0;
+	parameter [1:0] IDLE = 2'b00, DELAY = 2'b01, READ = 2'b10;
+	reg [1:0] state = IDLE;
 	
-	// reset counter and request status when new address is accessed
-	always @(posedge enable) begin
-		counter = 1;
-		finishDelay = 0;
-		requestComplete = 0;
+	always @(*) begin
+		// state logic
+		case (state)
+				IDLE:		begin
+								if (enable)
+									if (MEM_DELAY == 0)
+										state = READ;
+									else
+										state = DELAY;
+								else
+									state = IDLE;
+							end
+				DELAY:	begin
+								if (counter >= MEM_DELAY)
+									state = READ;
+								else
+									state = DELAY;
+							end
+				READ: 	begin
+								if (done)
+									state = IDLE;
+								else
+									state = READ;
+							end
+			endcase
 	end
 	
-	// increment counter per clock cycle until delay is reached
+	// always check for instant reads
+	always @(*) begin
+		if (state == READ) begin
+			data_out = mem[addr];
+			if (we) begin
+				mem[addr] = data_in; end
+			done = 1;
+		end
+	end
+	
+	// output logic
 	always @(posedge clk) begin
-		if (!requestComplete) begin
-			counter++; end
-		if (counter == (DELAY)) begin
-			finishDelay = 1; end
+		case (state)
+			IDLE:		begin
+							counter = 0;
+							done = 0;
+						end
+			DELAY:	begin
+							counter <= counter + 1;
+						end
+		endcase
 	end
 	
-	// return data out value once delay has been reached
-	always @(posedge finishDelay) begin
-		data_out = mem[addr];
-		if (we) begin
-			mem[addr] <= data_in; end
-		requestComplete = 1;
-	end
-	
+
 	initial begin
 		// initialize each memory location to its index
 		integer i;
@@ -52,14 +81,14 @@ endmodule
 
 module mainMem_testbench();
 	wire [31:0] data_out;
-	wire requestComplete;
+	wire done;
 	reg [31:0] data_in;
 	reg [8:0] addr;
 	reg we, enable, clk;
 	parameter t = 10;
 	parameter d = 70;
 	
-	mainMem #(.LENGTH(512), .BLOCK_SIZE(), .DELAY(d)) test (.data_out, .requestComplete, .data_in, .addr, .we, .enable, .clk);
+	mainMem #(.LENGTH(512), .BLOCK_SIZE(), .MEM_DELAY(d)) test (.data_out, .done, .data_in, .addr, .we, .enable, .clk);
 	
 	always #(t/2) clk = ~clk;
 	
@@ -71,14 +100,14 @@ module mainMem_testbench();
 		enable = 1;
 		#(d*t);
 		enable = 0;
-		assert (data_out == 10);	// access index 10, value should appear DELAY cycles later
+		assert (data_out == 10);	// access index 10, value should appear MEM_DELAY cycles later
 		
 		#t;
 		
 		addr = 50;
 		enable = 1;
 		#(d*t);
-		assert (data_out == 50);	// access index 50, value should appear DELAY cycles later
+		assert (data_out == 50);	// access index 50, value should appear MEM_DELAY cycles later
 		enable = 0;
 		
 		#t;
@@ -86,7 +115,7 @@ module mainMem_testbench();
 		addr = 50;
 		enable = 1;
 		#(d*t);
-		assert (data_out == 50);	// access index 50, value should appear DELAY cycles later
+		assert (data_out == 50);	// access index 50, value should appear MEM_DELAY cycles later
 		enable = 0;
 		
 		#(100*t);

@@ -1,5 +1,5 @@
 `protect // associativity 
-module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=32, RETURN_SIZE=8, ASSOCIATIVITY=4)
+module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BLOCK_SIZE=32, RETURN_SIZE=8, ASSOCIATIVITY=4)
 					  (data_out, done, miss, addr_in, data_in, writeEnable, enable, reset, clk);
 	parameter COUNTER_SIZE = $clog2(CACHE_DELAY);
 	
@@ -36,95 +36,102 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, B
 	lru #(.INDEX_SIZE(SIZE/BLOCK_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY)) LRU
 		  (cacheIndex, asso_index, LRUoutput, write_trigger, LRUread, reset, clk);
 	
-	parameter [1:0] IDLE = 2'b00, DELAY = 2'b01, READ = 2'b10, WRITE = 2'b11;
+	parameter [1:0] IDLE = 2'b00, DELAY = 2'b01, READ = 2'b10, FETCH = 2'b11;
 	reg [1:0] state;
-	reg [1:0] next_state;
 	
 	always @(*) begin
-		// next state logic
+		// state logic
 		case (state)
 				IDLE:		begin
 								if (enable)
-									next_state = DELAY;
+									if (CACHE_DELAY == 0)
+										state = READ;
+									else
+										state = DELAY;
 								else
-									next_state = IDLE;
+									state = IDLE;
 							end
 				DELAY:	begin
-								if (counter >= CACHE_DELAY - 1)
-									next_state = READ;
+								if (counter >= CACHE_DELAY)
+									state = READ;
 								else
-									next_state = DELAY;
+									state = DELAY;
 							end
 				READ: 	begin
 								if (done)
-									next_state = IDLE;
+									state = IDLE;
 								else if (miss)
-									next_state = WRITE;
+									state = FETCH;
 								else
-									next_state = READ;
+									state = READ;
 							end
-				WRITE:	begin
+				FETCH:	begin
 								if (done)
-									next_state = IDLE;
+									state = IDLE;
 								else
-									next_state = WRITE;
+									state = FETCH;
 							end
 			endcase
+	end
+	
+	// async output logic
+	always @(*) begin
+		case (state)
+			IDLE:		begin
+							LRUread = 0;
+							write_trigger = 0;
+						end
+			READ:		begin
+							for (int j=0; j<ASSOCIATIVITY; j++) begin
+								if(tags[cacheIndex][j] == tag && valid_bits[cacheIndex][j] == 1) begin
+									asso_index = j;
+									LRUread = 1;
+									data_out = data[cacheIndex][j][((byteSelect+1)*RETURN_SIZE-1) -: RETURN_SIZE];
+									done = 1;
+									break;	end
+								else if (j == (ASSOCIATIVITY - 1)) begin
+									miss = 1;
+									end
+							end
+						end
+			FETCH:	begin
+							miss = 0;
+							if (writeEnable) begin
+								write_trigger = 1;
+								data_out = data_in;
+								valid_bits[cacheIndex][LRUoutput] = 1;
+								tags[cacheIndex][LRUoutput] = tag;
+								data[cacheIndex][LRUoutput] = data_in;
+								done = 1;
+							end
+						end
+		endcase
 	end
 	
 	// output logic
 	always @(posedge clk) begin
 		if (reset) begin
 			state <= IDLE;
-			next_state <= IDLE;
 		end
 		case (state)
 			IDLE:		begin
 							write_trigger <= 0;
 							LRUread <= 0;
 							miss <= 0;
-							counter <= 1;
+							counter <= 0;
 							finish_delay <= 0;
 							done <= 0;
-							// null out output if about to perform another search
-							if (next_state == DELAY)
-								data_out <= 'x;
 						end
 			DELAY:	begin
 							counter <= counter + 1;
 						end
 			READ: 	begin
-							for (int j=0; j<ASSOCIATIVITY; j++) begin
-								if(tags[cacheIndex][j] == tag && valid_bits[cacheIndex][j] == 1) begin
-									asso_index <= j;
-									LRUread <= 1;
-									data_out <= data[cacheIndex][j][((byteSelect+1)*RETURN_SIZE-1) -: RETURN_SIZE];
-									done <= 1;
-									LRUread <= 1;
-									break;	end
-								else if (j == (ASSOCIATIVITY - 1)) begin
-									miss <= 1;
-									end
-							end
+							
 						end
-			WRITE:	begin
-							write_trigger <= 0;
-							miss <= 0;
-							if (writeEnable) begin
-								data_out <= data_in;
-								valid_bits[cacheIndex][LRUoutput] <= 1;
-								tags[cacheIndex][LRUoutput] <= tag;
-								data[cacheIndex][LRUoutput] <= data_in;
-								done <= 1;
-							end
+			FETCH:	begin
+							
 						end
 		endcase
-		
-		if(state == READ && next_state == WRITE)
-			write_trigger <= 1;
-		if(state == READ && next_state == IDLE)
-			LRUread <= 0;
-		state = next_state;
 	end
 endmodule
 `endprotect
@@ -146,7 +153,7 @@ module associative_cache_testbench();
 				L2 (data_inL1, writeEnableL1, missL2, addr_in, data_inL2, writeEnableL2, missL1, reset, clk);
 	
 	mainMem	#(.BLOCK_SIZE(32))
-				memory (.data_out(data_inL2), .requestComplete(writeEnableL2), .data_in(32'b0), .addr(addr_in), .we(1'b0), .enable(missL2), .clk);
+				memory (.data_out(data_inL2), .done(writeEnableL2), .data_in(32'b0), .addr(addr_in), .we(1'b0), .enable(missL2), .clk);
 	
 	
 	always #(t/2) clk = ~clk;
@@ -168,15 +175,15 @@ module associative_cache_testbench();
 		end
 		
 		// access an element that is in L2 but had capacity overflow in L1
-		addr_in = 4;
-		enable = 1;
-		#(30*t);
-		enable = 0;
-		#t;
+		addr_in = 4;		@(posedge clk);
+		enable <= 1;		@(posedge clk);
+		enable <= 0;		@(posedge clk);
+		#(100*t);
 		
 		// repeat same access to see if value is now stored in L1
-		addr_in = 4;
-		enable = 1;
+		addr_in = 4;		@(posedge clk);
+		enable <= 1;		@(posedge clk);
+		enable <= 0;		@(posedge clk);
 		#(100*t);
 		$stop;
 	end
