@@ -1,14 +1,14 @@
 `protect // associativity 
-module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_SIZE=32, RETURN_SIZE=8, ASSOCIATIVITY=4)
-					  (data_out, found_data, miss, addr_in, data_in, writeEnable, enable, reset, clk);
-	parameter COUNTER_SIZE = $clog2(DELAY);
+module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=32, RETURN_SIZE=8, ASSOCIATIVITY=4)
+					  (data_out, done, miss, addr_in, data_in, writeEnable, enable, reset, clk);
+	parameter COUNTER_SIZE = $clog2(CACHE_DELAY);
 	
 	parameter BYTE_SELECT_SIZE = $clog2(BLOCK_SIZE/8); // 2
 	parameter INDEX_SIZE = $clog2(SIZE/BLOCK_SIZE); // 2
 	parameter TAG_SIZE = ADDR_LENGTH - BYTE_SELECT_SIZE - INDEX_SIZE; // 6
 	
 	output reg [(RETURN_SIZE-1):0] data_out;
-	output reg found_data, miss = 0;
+	output reg done, miss = 0;
 	
 	input [(ADDR_LENGTH-1):0] addr_in;
 	input [(BLOCK_SIZE-1):0] data_in;
@@ -36,7 +36,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 	lru #(.INDEX_SIZE(SIZE/BLOCK_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY)) LRU
 		  (cacheIndex, asso_index, LRUoutput, write_trigger, LRUread, reset, clk);
 	
-	parameter [1:0] IDLE = 2'b00, WAITING = 2'b01, READ = 2'b10, WRITE = 2'b11;
+	parameter [1:0] IDLE = 2'b00, DELAY = 2'b01, READ = 2'b10, WRITE = 2'b11;
 	reg [1:0] state;
 	reg [1:0] next_state;
 	
@@ -45,18 +45,18 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 		case (state)
 				IDLE:		begin
 								if (enable)
-									next_state = WAITING;
+									next_state = DELAY;
 								else
 									next_state = IDLE;
 							end
-				WAITING:	begin
-								if (counter >= DELAY - 1)
+				DELAY:	begin
+								if (counter >= CACHE_DELAY - 1)
 									next_state = READ;
 								else
-									next_state = WAITING;
+									next_state = DELAY;
 							end
 				READ: 	begin
-								if (found_data)
+								if (done)
 									next_state = IDLE;
 								else if (miss)
 									next_state = WRITE;
@@ -64,7 +64,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 									next_state = READ;
 							end
 				WRITE:	begin
-								if (found_data)
+								if (done)
 									next_state = IDLE;
 								else
 									next_state = WRITE;
@@ -85,12 +85,12 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 							miss <= 0;
 							counter <= 1;
 							finish_delay <= 0;
-							found_data <= 0;
+							done <= 0;
 							// null out output if about to perform another search
-							if (next_state == WAITING)
+							if (next_state == DELAY)
 								data_out <= 'x;
 						end
-			WAITING:	begin
+			DELAY:	begin
 							counter <= counter + 1;
 						end
 			READ: 	begin
@@ -99,7 +99,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 									asso_index <= j;
 									LRUread <= 1;
 									data_out <= data[cacheIndex][j][((byteSelect+1)*RETURN_SIZE-1) -: RETURN_SIZE];
-									found_data <= 1;
+									done <= 1;
 									LRUread <= 1;
 									break;	end
 								else if (j == (ASSOCIATIVITY - 1)) begin
@@ -115,7 +115,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, DELAY=10, BLOCK_S
 								valid_bits[cacheIndex][LRUoutput] <= 1;
 								tags[cacheIndex][LRUoutput] <= tag;
 								data[cacheIndex][LRUoutput] <= data_in;
-								found_data <= 1;
+								done <= 1;
 							end
 						end
 		endcase
@@ -131,7 +131,7 @@ endmodule
 
 module associative_cache_testbench();
 	wire [7:0] data_out, dontCare; // always 1 byte
-	wire found_dataL1, found_dataL2, missL1, missL2;
+	wire doneL1, doneL2, missL1, missL2;
 	
 	reg [9:0] addr_in;
 	reg [31:0] data_inL1, data_inL2;
@@ -140,8 +140,8 @@ module associative_cache_testbench();
 	parameter t = 10;
 	parameter d = 20;
 	
-	//data_out, found_data, miss, addr_in, data_in, writeEnable, enable, reset, clk)
-	associative_cache	L1 (data_out, found_dataL1, missL1, addr_in, data_inL1, writeEnableL1, enable, reset, clk);
+	//data_out, done, miss, addr_in, data_in, writeEnable, enable, reset, clk)
+	associative_cache	L1 (data_out, doneL1, missL1, addr_in, data_inL1, writeEnableL1, enable, reset, clk);
 	associative_cache	#(.SIZE(256), .RETURN_SIZE(32))
 				L2 (data_inL1, writeEnableL1, missL2, addr_in, data_inL2, writeEnableL2, missL1, reset, clk);
 	
