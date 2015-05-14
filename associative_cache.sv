@@ -3,9 +3,9 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 					  (data_out, done, miss, addr_in, data_in, writeEnable, enable, reset, clk);
 	parameter COUNTER_SIZE = $clog2(CACHE_DELAY);
 	
-	parameter BYTE_SELECT_SIZE = $clog2(BLOCK_SIZE/8); // 2
-	parameter INDEX_SIZE = $clog2(SIZE/BLOCK_SIZE); // 2
-	parameter TAG_SIZE = ADDR_LENGTH - BYTE_SELECT_SIZE - INDEX_SIZE; // 6
+	parameter BYTE_SELECT_SIZE = $clog2(BLOCK_SIZE/8);
+	parameter INDEX_SIZE = $clog2(SIZE/BLOCK_SIZE);
+	parameter TAG_SIZE = ADDR_LENGTH - BYTE_SELECT_SIZE - INDEX_SIZE;
 	
 	output reg [(RETURN_SIZE-1):0] data_out;
 	output reg done, miss = 0;
