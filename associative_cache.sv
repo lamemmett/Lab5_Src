@@ -1,6 +1,6 @@
 `protect // associativity 
-module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BLOCK_SIZE=32, RETURN_SIZE=8, ASSOCIATIVITY=4)
-					  (data_out, done, miss, addr_in, data_in, writeEnable, enable, reset, clk);
+module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=32, RETURN_SIZE=8, ASSOCIATIVITY=4)
+					  (data_out, fetchComplete, miss, addr_in, data_in, fetchReceive, enable, write, reset, clk);
 	parameter COUNTER_SIZE = $clog2(CACHE_DELAY);
 	
 	parameter BYTE_SELECT_SIZE = $clog2(BLOCK_SIZE/8);
@@ -8,11 +8,11 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 	parameter TAG_SIZE = ADDR_LENGTH - BYTE_SELECT_SIZE - INDEX_SIZE;
 	
 	output reg [(RETURN_SIZE-1):0] data_out;
-	output reg done, miss = 0;
+	output reg fetchComplete, miss = 0;
 	
 	input [(ADDR_LENGTH-1):0] addr_in;
 	input [(BLOCK_SIZE-1):0] data_in;
-	input writeEnable, enable, reset, clk;
+	input fetchReceive, enable, write, reset, clk;
 	
 	wire [BYTE_SELECT_SIZE-1:0] 	byteSelect 	= addr_in[(BYTE_SELECT_SIZE-1):0];
 	wire [INDEX_SIZE-1:0]			cacheIndex 	= addr_in[(BYTE_SELECT_SIZE+INDEX_SIZE-1):(BYTE_SELECT_SIZE)];
@@ -28,6 +28,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 	reg finish_delay = 0;
 	reg LRUread = 0;
 	reg write_trigger = 0;
+	reg writeComplete = 0;
 	parameter NUM_ASSO_BITS = $clog2(ASSOCIATIVITY);
 	reg [(NUM_ASSO_BITS-1):0] asso_index = 0;
 	wire [(NUM_ASSO_BITS-1):0] LRUoutput;
@@ -36,18 +37,27 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 	lru #(.INDEX_SIZE(SIZE/BLOCK_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY)) LRU
 		  (cacheIndex, asso_index, LRUoutput, write_trigger, LRUread, reset, clk);
 	
-	parameter [1:0] IDLE = 2'b00, DELAY = 2'b01, READ = 2'b10, FETCH = 2'b11;
-	reg [1:0] state;
+	parameter [1:0] IDLE = 3'b000, DELAY = 3'b001, READ = 3'b010, FETCH = 3'b011, WRITE = 3'b100;
+	reg [2:0] state;
 	
 	always @(*) begin
 		// state logic
 		case (state)
 				IDLE:		begin
-								if (enable)
+								if(write) begin
+									for (int j=0; j<ASSOCIATIVITY; j++) begin
+									if(tags[cacheIndex][j] == tag && valid_bits[cacheIndex][j] == 1) begin
+										valid_bits[cacheIndex][j] = 0;
+										writeComplete = 1;
+										end
+									end
+								end
+								if(enable) begin
 									if (CACHE_DELAY == 0)
 										state = READ;
 									else
 										state = DELAY;
+									end
 								else
 									state = IDLE;
 							end
@@ -58,7 +68,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 									state = DELAY;
 							end
 				READ: 	begin
-								if (done)
+								if (fetchComplete)
 									state = IDLE;
 								else if (miss)
 									state = FETCH;
@@ -66,10 +76,16 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 									state = READ;
 							end
 				FETCH:	begin
-								if (done)
+								if (fetchComplete)
 									state = IDLE;
 								else
 									state = FETCH;
+							end
+				WRITE:	begin // not used
+								if (writeComplete)
+									state = IDLE;
+								else
+									state = WRITE;
 							end
 			endcase
 	end
@@ -87,7 +103,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 									asso_index = j;
 									LRUread = 1;
 									data_out = data[cacheIndex][j][((byteSelect+1)*RETURN_SIZE-1) -: RETURN_SIZE];
-									done = 1;
+									fetchComplete = 1;
 									break;	end
 								else if (j == (ASSOCIATIVITY - 1)) begin
 									miss = 1;
@@ -96,13 +112,21 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 						end
 			FETCH:	begin
 							miss = 0;
-							if (writeEnable) begin
+							if (fetchReceive) begin
 								write_trigger = 1;
 								data_out = data_in;
 								valid_bits[cacheIndex][LRUoutput] = 1;
 								tags[cacheIndex][LRUoutput] = tag;
 								data[cacheIndex][LRUoutput] = data_in;
-								done = 1;
+								fetchComplete = 1;
+							end
+						end
+			WRITE:	begin
+							for (int j=0; j<ASSOCIATIVITY; j++) begin
+								if(tags[cacheIndex][j] == tag && valid_bits[cacheIndex][j] == 1) begin
+									valid_bits[cacheIndex][j] = 0;
+									writeComplete = 1;
+									break;	end
 							end
 						end
 		endcase
@@ -115,12 +139,14 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 		end
 		case (state)
 			IDLE:		begin
+							// some of these may not be necessary
 							write_trigger <= 0;
 							LRUread <= 0;
 							miss <= 0;
 							counter <= 0;
 							finish_delay <= 0;
-							done <= 0;
+							fetchComplete <= 0;
+							writeComplete <= 0;
 						end
 			DELAY:	begin
 							counter <= counter + 1;
@@ -138,22 +164,41 @@ endmodule
 
 module associative_cache_testbench();
 	wire [7:0] data_out, dontCare; // always 1 byte
-	wire doneL1, doneL2, missL1, missL2;
+	wire fetchCompleteL1, fetchCompleteL2, missL1, missL2;
 	
 	reg [9:0] addr_in;
-	reg [31:0] data_inL1, data_inL2;
-	reg writeEnableL1, writeEnableL2, enable, reset, clk;
+	reg [31:0] data_inL1, data_inL2, data_inMem, data_outL2, data_outMem;
+	reg fetchReceiveL1, fetchReceiveL2, enable, write, reset, clk;
 	
 	parameter t = 10;
 	parameter d = 20;
 	
-	//data_out, done, miss, addr_in, data_in, writeEnable, enable, reset, clk)
-	associative_cache	L1 (data_out, doneL1, missL1, addr_in, data_inL1, writeEnableL1, enable, reset, clk);
+	reg [31:0] userData = 32'hFFFFFFFF;
+	
+/*	always @(*) begin
+		if (write) begin
+			data_inL1 = userData;
+			data_inL2 = userData;
+			data_inMem = userData;
+		end
+		else begin
+			data_inL1 = data_outL2;
+			data_inL2 = data_outMem;
+			data_inMem = 0;
+		end
+	end*/
+	
+	assign data_inL1 = data_outL2;
+	assign data_inL2 = data_outMem;
+	assign data_inMem = userData;
+	
+	// (data_out, fetchComplete, miss, addr_in, data_in, fetchReceive, enable, write, reset, clk)
+	associative_cache	L1 (data_out, fetchCompleteL1, missL1, addr_in, data_inL1, fetchReceiveL1, enable, write ,reset, clk);
 	associative_cache	#(.SIZE(256), .RETURN_SIZE(32))
-				L2 (data_inL1, writeEnableL1, missL2, addr_in, data_inL2, writeEnableL2, missL1, reset, clk);
+				L2 (data_outL2, fetchReceiveL1, missL2, addr_in, data_inL2, fetchReceiveL2, missL1, write, reset, clk);
 	
 	mainMem	#(.BLOCK_SIZE(32))
-				memory (.data_out(data_inL2), .done(writeEnableL2), .data_in(32'b0), .addr(addr_in), .we(1'b0), .enable(missL2), .clk);
+				memory (.data_out(data_outMem), .fetchComplete(fetchReceiveL2), .data_in(data_inMem), .addr(addr_in), .write(write), .enable(missL2), .clk);
 	
 	
 	always #(t/2) clk = ~clk;
@@ -163,9 +208,56 @@ module associative_cache_testbench();
 		clk <= 0;
 		reset <= 1'b1;			@(posedge clk);
 		reset <= 1'b0;			@(posedge clk);
+		write <= 0;				@(posedge clk);
 		
-									@(posedge clk);
 		
+		// WRITE AROUND TEST
+		addr_in = 0;			@(posedge clk);
+		enable <= 1;			@(posedge clk);
+		enable <= 0;			@(posedge clk);
+		#(100*t);
+		
+		write <= 1;				@(posedge clk);
+		enable <= 1;			@(posedge clk);
+		enable <= 0;			@(posedge clk);
+		#(100*t);
+		
+		write <= 0;				@(posedge clk);
+		enable <= 1;			@(posedge clk);
+		enable <= 0;			@(posedge clk);
+		#(100*t);
+		
+		addr_in = 4;			@(posedge clk);
+		write <= 0;				@(posedge clk);
+		enable <= 1;			@(posedge clk);
+		enable <= 0;			@(posedge clk);
+		#(100*t);
+		
+		write <= 1;				@(posedge clk);
+		enable <= 1;			@(posedge clk);
+		enable <= 0;			@(posedge clk);
+		#(100*t);
+		
+		write <= 0;				@(posedge clk);
+		enable <= 1;			@(posedge clk);
+		enable <= 0;			@(posedge clk);
+		#(100*t);
+		
+		
+		/*
+		// WRITE TESTS
+		write <= 1;				@(posedge clk);
+		for (i=0; i<1024; i++) begin
+			addr_in <= i;		@(posedge clk);
+			enable <= 1;		@(posedge clk);
+			enable <= 0;		@(posedge clk);
+			#(100*t);
+		end
+		*/
+		
+		
+		/*
+		//	READ TESTS
 		// fill up both caches
 		for (i=0; i<128; i++) begin
 			addr_in <= i;		@(posedge clk);
@@ -184,7 +276,10 @@ module associative_cache_testbench();
 		addr_in = 4;		@(posedge clk);
 		enable <= 1;		@(posedge clk);
 		enable <= 0;		@(posedge clk);
+		*/
+
 		#(100*t);
 		$stop;
+		
 	end
 endmodule 

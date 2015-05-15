@@ -1,32 +1,36 @@
 `protect
-module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=0) (data_out, done, data_in, addr, we, enable, clk);
+module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=10) (data_out, fetchComplete, data_in, addr, write, enable, clk);
 	parameter ADDR_LENGTH = $clog2(LENGTH);
 	parameter COUNTER_SIZE = $clog2(MEM_DELAY);
 	
 	output reg [(BLOCK_SIZE-1):0] data_out;
-	output reg done;
+	output reg fetchComplete;
+	reg writeComplete = 0;
 	
 	input [(BLOCK_SIZE-1):0] data_in;
 	input [(ADDR_LENGTH-1):0] addr;
-	input we, enable, clk;
+	input write, enable, clk;
 	
 	// state-holding memory
 	reg [(BLOCK_SIZE-1):0] mem [(LENGTH-1):0];
 	// counter to track delay
 	reg [COUNTER_SIZE-1:0] counter = 0;
 	
-	parameter [1:0] IDLE = 2'b00, DELAY = 2'b01, READ = 2'b10;
+	parameter [1:0] IDLE = 2'b00, DELAY = 2'b01, READ = 2'b10, WRITE = 2'b11;
 	reg [1:0] state = IDLE;
 	
 	always @(*) begin
 		// state logic
 		case (state)
 				IDLE:		begin
-								if (enable)
+								if(write)
+									mem[addr] = data_in;
+								if(enable) begin
 									if (MEM_DELAY == 0)
 										state = READ;
 									else
 										state = DELAY;
+									end
 								else
 									state = IDLE;
 							end
@@ -37,10 +41,16 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=0) (data_out, d
 									state = DELAY;
 							end
 				READ: 	begin
-								if (done)
+								if (fetchComplete)
 									state = IDLE;
 								else
 									state = READ;
+							end
+				WRITE: 	begin // not used
+								if (writeComplete)
+									state = IDLE;
+								else
+									state = WRITE;
 							end
 			endcase
 	end
@@ -49,9 +59,11 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=0) (data_out, d
 	always @(*) begin
 		if (state == READ) begin
 			data_out = mem[addr];
-			if (we) begin
-				mem[addr] = data_in; end
-			done = 1;
+			fetchComplete = 1;
+		end
+		if (state == WRITE) begin
+			mem[addr] = data_in;
+			writeComplete = 1;
 		end
 	end
 	
@@ -59,8 +71,9 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=0) (data_out, d
 	always @(posedge clk) begin
 		case (state)
 			IDLE:		begin
-							counter = 0;
-							done = 0;
+							counter <= 0;
+							fetchComplete <= 0;
+							writeComplete <= 0;
 						end
 			DELAY:	begin
 							counter <= counter + 1;
@@ -81,14 +94,14 @@ endmodule
 
 module mainMem_testbench();
 	wire [31:0] data_out;
-	wire done;
+	wire fetchComplete;
 	reg [31:0] data_in;
 	reg [8:0] addr;
-	reg we, enable, clk;
+	reg write, enable, clk;
 	parameter t = 10;
 	parameter d = 70;
 	
-	mainMem #(.LENGTH(512), .BLOCK_SIZE(), .MEM_DELAY(d)) test (.data_out, .done, .data_in, .addr, .we, .enable, .clk);
+	mainMem #(.LENGTH(512), .BLOCK_SIZE(), .MEM_DELAY(d)) test (.data_out, .fetchComplete, .data_in, .addr, .write, .enable, .clk);
 	
 	always #(t/2) clk = ~clk;
 	
@@ -96,7 +109,7 @@ module mainMem_testbench();
 		clk = 0;
 		data_in = 31'b0;
 		addr = 10;
-		we = 0;
+		write = 0;
 		enable = 1;
 		#(d*t);
 		enable = 0;
