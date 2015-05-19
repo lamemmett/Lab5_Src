@@ -13,6 +13,8 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 	reg [(INDEX_SIZE-1):0][(ASSOCIATIVITY-1):0][(COUNT_SIZE-1):0] mem;
 	reg [(ASSOCIATIVITY-1):0] v;
 	
+	reg reading = 0, writing = 0;
+	
 	integer i, j;
 	initial begin
 		for(i = 0; i < INDEX_SIZE; i++) begin
@@ -38,7 +40,8 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 			end
 		end
 		
-		if (write_trigger) begin
+		if (write_trigger & ~writing) begin
+			writing = 1;
 			for(j = 0; j < ASSOCIATIVITY; j++)begin
 				mem[index][j] -= 1'b1;
 				if(mem[index][j] >= ASSOCIATIVITY) begin
@@ -47,7 +50,8 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 			end
 		end
 		
-		if (read_trigger) begin
+		if (read_trigger & ~reading) begin
+			reading = 1;
 			for(j = 0; j < ASSOCIATIVITY; j++)begin
 				if(j == asso_index) begin
 					v <= mem[index][j];
@@ -62,42 +66,11 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 				end
 			end
 		end
-	end
-	
-	always @(posedge clk) begin
-//		// reset cache contents
-//		if (reset) begin
-//			for(i = 0; i < INDEX_SIZE; i++) begin
-//				for(j = 0; j < ASSOCIATIVITY; j++)begin
-//					mem[i][j] <= j;
-//				end
-//			end
-//		end
-//		
-//		if (write_trigger) begin
-//			for(j = 0; j < ASSOCIATIVITY; j++)begin
-//				mem[index][j] -= 1'b1;
-//				if(mem[index][j] >= ASSOCIATIVITY) begin
-//					mem[index][j] <= ASSOCIATIVITY-1;
-//				end
-//			end
-//		end
-//		
-//		if (read_trigger) begin
-//			for(j = 0; j < ASSOCIATIVITY; j++)begin
-//				if(j == asso_index) begin
-//					v <= mem[index][j];
-//				end
-//			end
-//			for(j = 0; j < ASSOCIATIVITY; j++)begin
-//				if(mem[index][j] > v ) begin
-//					mem[index][j] <= mem[index][j] - 1'b1;
-//				end
-//				if(mem[index][j] == v) begin
-//					mem[index][j] <= ASSOCIATIVITY - 1;
-//				end
-//			end
-//		end
+		
+		if (~read_trigger & ~write_trigger) begin
+			reading = 0;
+			writing = 0;
+		end
 	end
 endmodule
 
@@ -119,6 +92,5 @@ module lru_testbench();
 		write_trigger <= 1'b0; #10;
 		write_trigger <= 1'b1; #10;
 		asso_index = 3'b101;   read_trigger <= 1'b1; #10;
-		
 	end
 endmodule

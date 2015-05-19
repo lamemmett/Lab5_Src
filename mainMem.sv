@@ -1,5 +1,5 @@
 `protect
-module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=10) (data_out, fetchComplete, data_in, addr, write, enable, clk);
+module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=0) (data_out, fetchComplete, data_in, addr, write, enable, clk);
 	parameter ADDR_LENGTH = $clog2(LENGTH);
 	parameter COUNTER_SIZE = $clog2(MEM_DELAY);
 	
