@@ -5,7 +5,6 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=0) (data_out, f
 	
 	output reg [(BLOCK_SIZE-1):0] data_out;
 	output reg fetchComplete;
-	reg writeComplete = 0;
 	
 	input [(BLOCK_SIZE-1):0] data_in;
 	input [(ADDR_LENGTH-1):0] addr;
@@ -15,70 +14,35 @@ module mainMem #(parameter LENGTH=1024, BLOCK_SIZE=32, MEM_DELAY=0) (data_out, f
 	reg [(BLOCK_SIZE-1):0] mem [(LENGTH-1):0];
 	// counter to track delay
 	reg [COUNTER_SIZE-1:0] counter = 0;
-	
-	parameter [1:0] IDLE = 2'b00, DELAY = 2'b01, READ = 2'b10, WRITE = 2'b11;
-	reg [1:0] state = IDLE;
+	reg start_counter = 0;
 	
 	always @(*) begin
-		// state logic
-		case (state)
-				IDLE:		begin
-								if(write)
-									mem[addr] = data_in;
-								if(enable) begin
-									if (MEM_DELAY == 0)
-										state = READ;
-									else
-										state = DELAY;
-									end
-								else
-									state = IDLE;
-							end
-				DELAY:	begin
-								if (counter >= MEM_DELAY)
-									state = READ;
-								else
-									state = DELAY;
-							end
-				READ: 	begin
-								if (fetchComplete)
-									state = IDLE;
-								else
-									state = READ;
-							end
-				WRITE: 	begin // not used
-								if (writeComplete)
-									state = IDLE;
-								else
-									state = WRITE;
-							end
-			endcase
-	end
-	
-	// always check for instant reads
-	always @(*) begin
-		if (state == READ) begin
-			data_out = mem[addr];
-			fetchComplete = 1;
+		if (~enable) begin
+			data_out = 'x;
+			fetchComplete = 0;
+			counter = 0;
+			start_counter = 0;
 		end
-		if (state == WRITE) begin
+		// check if data here after timer elapses
+		else if (~write) begin
+			start_counter = 1;
+			if (counter >= MEM_DELAY) begin
+				start_counter = 0;
+				fetchComplete = 1;
+				data_out = mem[addr];
+			end
+		end
+		// write
+		else begin
 			mem[addr] = data_in;
-			writeComplete = 1;
 		end
 	end
-	
+
 	// output logic
 	always @(posedge clk) begin
-		case (state)
-			IDLE:		begin
-							counter <= 0;
-							fetchComplete <= 0;
-							writeComplete <= 0;
-						end
-			DELAY:	begin
-							counter <= counter + 1;
-						end
-		endcase
+		if (start_counter) begin
+			counter <= counter + 1;
+		end
 	end
 	
 
