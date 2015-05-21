@@ -54,15 +54,15 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1)
 			reading = 1;
 			for(j = 0; j < ASSOCIATIVITY; j++)begin
 				if(j == asso_index) begin
-					v <= mem[index][j];
+					v = mem[index][j];
 				end
 			end
 			for(j = 0; j < ASSOCIATIVITY; j++)begin
 				if(mem[index][j] > v ) begin
-					mem[index][j] <= mem[index][j] - 1'b1;
+					mem[index][j] = mem[index][j] - 1'b1;
 				end
-				if(mem[index][j] == v) begin
-					mem[index][j] <= ASSOCIATIVITY - 1;
+				else if(mem[index][j] == v) begin
+					mem[index][j] = ASSOCIATIVITY - 1;
 				end
 			end
 		end

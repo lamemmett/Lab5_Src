@@ -60,6 +60,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 				fetchComplete = 1;
 			end
 		end
+		// check if data here after timer elapses
 		else if (~write) begin
 			start_counter = 1;
 			if (counter >= CACHE_DELAY) begin
@@ -81,6 +82,7 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=0, BL
 				end
 			end
 		end
+		// write
 		else begin
 			for (int j=0; j<ASSOCIATIVITY; j++) begin
 				if(tags[cacheIndex][j] == tag && valid_bits[cacheIndex][j] == 1) begin
@@ -207,7 +209,7 @@ module associative_cache_testbench();
 			#t;
 		end
 		
-		addr_in <= 0;			@(posedge clk);
+		addr_in <= 32;			@(posedge clk);
 		enable <= 1;			@(posedge clk);
 		#(100*t);
 		enable <= 0;			@(posedge clk);
