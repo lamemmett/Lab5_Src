@@ -1,7 +1,7 @@
 `protect // associativity 
 module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=32, RETURN_SIZE=8, ASSOCIATIVITY=4, WRITE_MODE=2'b10)
-					  (data_out, fetchComplete, miss, addr_in, data_in, fetchReceive,
-						enable, write, wb_enable_out, wb_addr_out, wb_enable_in, wb_addr_in, reset, clk);
+					  (data_out, fetchComplete, miss, addr_in, addr_out, data_in, fetchReceive,
+						enable, write_in, write_out, reset, clk);
 	parameter [1:0] WRITE_AROUND = 2'b00, WRITE_THROUGH = 2'b01, WRITE_BACK = 2'b10;
 	
 	parameter COUNTER_SIZE = $clog2(CACHE_DELAY);
@@ -14,24 +14,15 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, B
 	output reg fetchComplete, miss = 0;
 	
 	input [(ADDR_LENGTH-1):0] addr_in;
+	output [(ADDR_LENGTH-1):0] addr_out;
 	input [(BLOCK_SIZE-1):0] data_in;
-	input fetchReceive, enable, write, reset, clk;
-	
-	// WRITE BACK I/O
-	input [(ADDR_LENGTH-1):0] wb_addr_in;
-	input wb_enable_in;
-	output [(ADDR_LENGTH-1):0] wb_addr_out;
-	output wb_enable_out;
+	input fetchReceive, enable, write_in, reset, clk;
+	output write_out;
 	
 	wire [BYTE_SELECT_SIZE-1:0] 	byteSelect 	= addr_in[(BYTE_SELECT_SIZE-1):0];
 	wire [INDEX_SIZE-1:0]			cacheIndex 	= addr_in[(BYTE_SELECT_SIZE+INDEX_SIZE-1):(BYTE_SELECT_SIZE)];
 	wire [TAG_SIZE-1:0]				tag 			= addr_in[(ADDR_LENGTH-1):(BYTE_SELECT_SIZE+INDEX_SIZE)];
 	
-	//
-	wire [BYTE_SELECT_SIZE-1:0] 	wb_byteSelect 		= wb_addr_in[(BYTE_SELECT_SIZE-1):0];
-	wire [INDEX_SIZE-1:0]			wb_cacheIndex 		= wb_addr_in[(BYTE_SELECT_SIZE+INDEX_SIZE-1):(BYTE_SELECT_SIZE)];
-	wire [TAG_SIZE-1:0]				wb_tag 				= wb_addr_in[(ADDR_LENGTH-1):(BYTE_SELECT_SIZE+INDEX_SIZE)];
-
 	// CACHE CONTENTS
 	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(BLOCK_SIZE-1):0]  data;
 	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(TAG_SIZE-1):0] 	 tags;
@@ -39,7 +30,6 @@ module associative_cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, B
 	
 	//
 	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] 							 dirty_bits;
-	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(ADDR_LENGTH-1):0] dirty_addr;
 	
 	// various counters and flags
 	reg [COUNTER_SIZE-1:0] counter;
@@ -185,9 +175,9 @@ module associative_cache_testbench();
 	end
 
 	// (data_out, fetchComplete, miss, addr_in, data_in, fetchReceive, enable, write, reset, clk)
-	associative_cache	L1 (data_out, fetchCompleteL1, missL1, addr_in, data_inL1, fetchReceiveL1, enable, write ,reset, clk);
+	associative_cache	L1 (data_out, fetchCompleteL1, missL1, addr_inL1, addr_outL1, data_inL1, fetchReceiveL1, enable, write_inL1, write_outL1, reset, clk);
 	associative_cache	#(.SIZE(256), .RETURN_SIZE(32))
-				L2 (data_outL2, fetchReceiveL1, missL2, addr_in, data_inL2, fetchReceiveL2, missL1, write, reset, clk);
+				L2 (data_outL2, fetchReceiveL1, missL2, addr_inL2, addr_outL2, data_inL2, fetchReceiveL2, missL1, write_inL2, write_outL2, reset, clk);
 	
 	mainMem	#(.BLOCK_SIZE(32))
 				memory (.data_out(data_outMem), .fetchComplete(fetchReceiveL2), .data_in(data_inMem), .addr(addr_in), .write(write), .enable(missL2), .clk);
