@@ -79,7 +79,7 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=64
 			addrOut = 'x;
 			dataDownOut = 'x;
 			enableOut = 0;
-			writeOut = 'x;
+			writeOut = 0;
 			
 			// Reset various counters and flags
 			LRUread = 0;
@@ -96,7 +96,7 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=64
 					enableOut = 1;
 				end
 				LRUwrite = 1;
-				dataUpOut = dataDownIn;
+				dataUpOut = dataDownIn[wordSelect*32 +: RETURN_SIZE];
 				validBits[cacheIndex][LRUoutput] = 1;
 				tags[cacheIndex][LRUoutput] = tag;
 				data[cacheIndex][LRUoutput] = dataDownIn;
@@ -151,6 +151,7 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=64
 						for (int j=0; j<ASSOCIATIVITY; j++) begin
 							if(tags[cacheIndex][j] == tag && validBits[cacheIndex][j] == 1) begin
 								dirtyBits[cacheIndex][j] = 1'b1;
+								tags[cacheIndex][j] = tag;
 								data[cacheIndex][j][wordSelect*BLOCK_SIZE +: 32] = dataUpIn;
 								break;	end
 							else if (j == (ASSOCIATIVITY - 1)) begin	// Try writing to lower cache if data not present here
@@ -188,6 +189,14 @@ module cache_testbench();
 	wire [63:0] dataDownInL1, dataDownOutL1;
 	wire fetchReceiveL1, enableOutL1, writeCompleteInL1, writeOutL1;
 	
+	wire [9:0] addrInL2;
+	wire [63:0] dataUpOutL2;
+	wire [63:0] dataUpInL2;
+	wire fetchCompleteL2, enableInL2, writeCompleteOutL2, writeInL2;
+	wire [9:0] addrOutL2;
+	wire [63:0] dataDownInL2, dataDownOutL2;
+	wire fetchReceiveL2, enableOutL2, writeCompleteInL2, writeOutL2;
+	
 	wire [9:0] addrInMem;
 	wire [63:0] dataUpOutMem, dataUpInMem;
 	wire fetchCompleteMem, enableInMem, writeCompleteOutMem, writeInMem;
@@ -195,7 +204,7 @@ module cache_testbench();
 	reg clock, reset;
 	
 	parameter t = 10;
-	parameter d = 30;
+	parameter d = 50;
 	
 	// Top-level I/O
 	assign 	addrInL1			= addrIn;
@@ -207,17 +216,31 @@ module cache_testbench();
 		requestComplete		= fetchCompleteL1 | writeCompleteOutL1;
 	end
 	
-	// Cache DOWN I/O
-	assign addrInMem					= addrOutL1;
-	assign dataDownInL1				= dataUpOutMem;
-	assign dataUpInMem				= dataDownOutL1;
-	assign fetchReceiveL1			= fetchCompleteMem;
-	assign enableInMem				= enableOutL1;
-	assign writeCompleteInL1		= writeCompleteOutMem;
-	assign writeInMem					= writeOutL1;
+	// L1 DOWN I/O
+	assign addrInL2					= addrOutL1;
+	assign dataDownInL1				= dataUpOutL2;
+	assign dataUpInL2					= dataDownOutL1;
+	assign fetchReceiveL1			= fetchCompleteL2;
+	assign enableInL2					= enableOutL1;
+	assign writeCompleteInL1		= writeCompleteOutL2;
+	assign writeInL2					= writeOutL1;
+	
+	// L2 DOWN I/O
+	assign addrInMem					= addrOutL2;
+	assign dataDownInL2				= dataUpOutMem;
+	assign dataUpInMem				= dataDownOutL2;
+	assign fetchReceiveL2			= fetchCompleteMem;
+	assign enableInMem				= enableOutL2;
+	assign writeCompleteInL2		= writeCompleteOutMem;
+	assign writeInMem					= writeOutL2;
 
 	cache L1 		(addrInL1, 	dataUpOutL1, 	dataUpInL1, 	fetchCompleteL1, 	enableInL1, 	writeCompleteOutL1, 	writeInL1,
 						 addrOutL1,	dataDownInL1,	dataDownOutL1,	fetchReceiveL1,	enableOutL1,	writeCompleteInL1,	writeOutL1,
+						 clock, 		reset);
+						 
+	cache 			#(.SIZE(256), .RETURN_SIZE(64))
+			L2 		(addrInL2, 	dataUpOutL2, 	dataUpInL2, 	fetchCompleteL2, 	enableInL2, 	writeCompleteOutL2, 	writeInL2,
+						 addrOutL2,	dataDownInL2,	dataDownOutL2,	fetchReceiveL2,	enableOutL2,	writeCompleteInL2,	writeOutL2,
 						 clock, 		reset);
 	
 	mainMem memory	(addrInMem, dataUpOutMem, 	dataUpInMem, 	fetchCompleteMem, enableInMem, 	writeCompleteOutMem, writeInMem,
@@ -233,7 +256,7 @@ module cache_testbench();
 		reset <= 1'b0;			@(posedge clock);
 		writeIn <= 0;			@(posedge clock);
 	
-//		// Read tests
+		// Read tests
 //		for (integer i = 0; i<128; i++) begin
 //			addrIn = i;
 //			enableIn = 1;
@@ -242,7 +265,7 @@ module cache_testbench();
 //			#t;
 //		end
 		
-//		// WRITE AROUND tests
+		// WRITE AROUND tests
 //		addrIn <= 0;				@(posedge clock);
 //		enableIn <= 1;				@(posedge clock);
 //		#(100*t);
@@ -288,7 +311,7 @@ module cache_testbench();
 //		enableIn <= 0;				@(posedge clock);
 //		#t;
 		
-//		// WRITE THROUGH TESTS
+		// WRITE THROUGH TESTS
 //		addrIn = 0;					@(posedge clock);
 //		enableIn <= 1;				@(posedge clock);
 //		#(100*t);
@@ -333,13 +356,19 @@ module cache_testbench();
 		enableIn <= 0;				@(posedge clock);
 		#t;
 		
-		addrIn = 12;					@(posedge clock);
+		addrIn = 12;				@(posedge clock);
 		enableIn <= 1;				@(posedge clock);
 		#(100*t);
 		enableIn <= 0;				@(posedge clock);
 		#t;
 		
-		addrIn = 16;					@(posedge clock);
+		addrIn = 16;				@(posedge clock);
+		enableIn <= 1;				@(posedge clock);
+		#(100*t);
+		enableIn <= 0;				@(posedge clock);
+		#t;
+		
+		addrIn = 0;					@(posedge clock);
 		enableIn <= 1;				@(posedge clock);
 		#(100*t);
 		enableIn <= 0;				@(posedge clock);
