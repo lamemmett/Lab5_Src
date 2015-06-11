@@ -1,4 +1,4 @@
-module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=128, RETURN_SIZE=32, ASSOCIATIVITY=2, WRITE_MODE=2'b10)
+module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=128, RETURN_SIZE=32, ASSOCIATIVITY=2, WRITE_MODE=2'b00)
 				(addrIn, 	dataUpOut, 	dataUpIn, 		fetchComplete, enableIn, 	writeCompleteOut, writeIn,
 				 addrOut,	dataDownIn,	dataDownOut,	fetchReceive,	enableOut,	writeCompleteIn,	writeOut,
 				 clock, reset);
@@ -7,9 +7,9 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=12
 	
 	parameter COUNTER_SIZE = $clog2(CACHE_DELAY);
 	
-	parameter WORD_SELECT_SIZE = $clog2(BLOCK_SIZE/32);
+	parameter WORD_SELECT_SIZE = $clog2(BLOCK_SIZE/RETURN_SIZE);
 	parameter INDEX_SIZE = $clog2(SIZE/BLOCK_SIZE);
-	parameter TAG_SIZE = ADDR_LENGTH - WORD_SELECT_SIZE - INDEX_SIZE;
+	parameter TAG_SIZE = ADDR_LENGTH - $clog2(BLOCK_SIZE/32) - INDEX_SIZE;
 	
 	parameter NUM_ASSO_BITS = $clog2(ASSOCIATIVITY);
 	
@@ -39,7 +39,7 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=12
 	
 	wire [WORD_SELECT_SIZE-1:0]	wordSelect 	= addrIn[0 +: WORD_SELECT_SIZE];
 	wire [INDEX_SIZE-1:0]			cacheIndex 	= addrIn[WORD_SELECT_SIZE +: INDEX_SIZE];
-	wire [TAG_SIZE-1:0]				tag 			= addrIn[(ADDR_LENGTH-1):(WORD_SELECT_SIZE+INDEX_SIZE)];
+	wire [TAG_SIZE-1:0]				tag 			= addrIn[(ADDR_LENGTH-1) -: TAG_SIZE];
 	
 	// CACHE CONTENTS
 	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(BLOCK_SIZE-1):0]  data;
@@ -78,7 +78,27 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=12
 			LRUwrite = 0;
 			counter = 0;
 		end
-		else if (enableIn) begin
+		else if (enableOut) begin	// missed in this cache, waiting for retrieval from lower level
+			if (fetchReceive) begin
+				enableOut = 0;
+				// check dirty bits for write-back functionality
+				if (dirtyBits[cacheIndex][LRUoutput] == 1) begin
+					addrOut = {tags[cacheIndex], cacheIndex, wordSelect};
+					dataDownOut = data[cacheIndex][LRUoutput];
+					writeOut = 1;
+					enableOut = 1;
+					dirtyBits[cacheIndex][LRUoutput] = 0;
+				end
+				dataUpOut = dataDownIn[wordSelect*RETURN_SIZE +: RETURN_SIZE];
+				validBits[cacheIndex][LRUoutput] = 1;
+				tags[cacheIndex][LRUoutput] = tag;
+				data[cacheIndex][LRUoutput] = dataDownIn;
+				LRUwrite = 1;
+				
+				fetchComplete = 1;
+			end
+		end
+		else if (enableIn) begin	// wait for counter delay, perform read/write operation
 			startCounter = 1;
 			if (counter >= CACHE_DELAY) begin
 				startCounter = 0;
@@ -89,16 +109,14 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=12
 						if(tags[cacheIndex][j] == tag && validBits[cacheIndex][j] == 1) begin
 							assoIndex = j;
 							LRUread = 1;
-							dataUpOut = data[cacheIndex][j][((wordSelect+1)*RETURN_SIZE-1) -: RETURN_SIZE];
+							dataUpOut = data[cacheIndex][j][(wordSelect*RETURN_SIZE) +: RETURN_SIZE];
 							fetchComplete = 1;
-							$display("FOUND", $time);
 							break;	
 						end
 						// data not here
 						else if (j == (ASSOCIATIVITY - 1)) begin
 							addrOut = addrIn;
 							enableOut = 1;
-							$display("MISSED", $time);
 						end
 					end
 				end
@@ -139,27 +157,6 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=12
 						end
 					end
 
-				end
-			end
-			if (enableOut) begin	// retrieved data from lower cache, write data to cache now
-				if (fetchReceive) begin
-					$display("FETCH", $time);
-					enableOut = 0;
-					// check dirty bits for write-back functionality
-					if (dirtyBits[cacheIndex][LRUoutput] == 1) begin
-						addrOut = {tags[cacheIndex], cacheIndex, wordSelect};
-						dataDownOut = data[cacheIndex][LRUoutput];
-						writeOut = 1;
-						enableOut = 1;
-						dirtyBits[cacheIndex][LRUoutput] = 0;
-					end
-					LRUwrite = 1;
-					dataUpOut = dataDownIn[wordSelect*32 +: RETURN_SIZE];
-					validBits[cacheIndex][LRUoutput] = 1;
-					tags[cacheIndex][LRUoutput] = tag;
-					data[cacheIndex][LRUoutput] = dataDownIn;
-					
-					fetchComplete = 1;
 				end
 			end
 		end

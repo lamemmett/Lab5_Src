@@ -21,6 +21,7 @@ module mainMem #(parameter SIZE=1024, ADDR_LENGTH=10, MEM_DELAY=10, BLOCK_SIZE=3
 	reg [COUNTER_SIZE-1:0] counter = 0;
 	reg startCounter = 0;
 	integer numReads = RETURN_SIZE / 2;
+	wire			[(ADDR_LENGTH-1):0] 	baseAddr = addrIn / (RETURN_SIZE / 32) * 2;
 	
 	// MEM CONTENTS
 	reg [(BLOCK_SIZE-1):0] mem [(SIZE-1):0];
@@ -44,7 +45,7 @@ module mainMem #(parameter SIZE=1024, ADDR_LENGTH=10, MEM_DELAY=10, BLOCK_SIZE=3
 				end
 				else begin
 					for (integer i=0; i<numReads; i++) begin
-						dataUpOut[i*BLOCK_SIZE +: BLOCK_SIZE] = mem[addrIn + i];
+						dataUpOut[i*BLOCK_SIZE +: BLOCK_SIZE] = mem[baseAddr + i];
 					end
 					fetchComplete = 1;
 				end
