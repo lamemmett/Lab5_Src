@@ -4,6 +4,7 @@ module mainMem #(parameter SIZE=1024, ADDR_LENGTH=10, MEM_DELAY=10, BLOCK_SIZE=3
 					  clock, reset);
 	
 	parameter COUNTER_SIZE = $clog2(MEM_DELAY);
+	parameter SELECT_SIZE = $clog2(RETURN_SIZE/32);
 	
 	// I/O STUFF	------
 	input clock, reset;
@@ -21,7 +22,8 @@ module mainMem #(parameter SIZE=1024, ADDR_LENGTH=10, MEM_DELAY=10, BLOCK_SIZE=3
 	reg [COUNTER_SIZE-1:0] counter = 0;
 	reg startCounter = 0;
 	integer numReads = RETURN_SIZE / 2;
-	wire			[(ADDR_LENGTH-1):0] 	baseAddr = addrIn / (RETURN_SIZE / 32) * 2;
+	wire 			[(SELECT_SIZE-1):0]	zeroes = 0;
+	wire			[(ADDR_LENGTH-1):0] 	baseAddr = {addrIn[(ADDR_LENGTH-1):SELECT_SIZE], zeroes};
 	
 	// MEM CONTENTS
 	reg [(BLOCK_SIZE-1):0] mem [(SIZE-1):0];
