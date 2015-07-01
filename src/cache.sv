@@ -184,10 +184,10 @@ module cache_testbench();
 	
 	parameter ADDR_LENGTH = $clog2(SIZEMEM);
 	
-	reg [31:0] dataOut;
+	wire [31:0] dataOut;
+	wire requestComplete;
 	reg [31:0] dataIn = 32'hFFFFFFFF;
 	reg [(ADDR_LENGTH-1):0] addrIn;
-	reg requestComplete;
 	reg enableIn;
 	reg writeIn;
 	
@@ -217,14 +217,12 @@ module cache_testbench();
 	parameter d = 50;
 	
 	// Top-level I/O
-	assign 	addrInL1			= addrIn;
-	assign 	dataUpInL1 		= dataIn;
-	assign 	enableInL1		= enableIn;
-	assign 	writeInL1		= writeIn;
-	always @(*) begin
-		dataOut 					= dataUpOutL1;
-		requestComplete		= fetchCompleteL1 | writeCompleteOutL1;
-	end
+	assign 	dataOut 				= dataUpOutL1;
+	assign 	addrInL1				= addrIn;
+	assign 	dataUpInL1 			= dataIn;
+	assign 	enableInL1			= enableIn;
+	assign 	writeInL1			= writeIn;
+	assign 	requestComplete	= fetchCompleteL1 | writeCompleteOutL1;
 	
 	// L1 DOWN I/O
 	assign addrInL2					= addrOutL1;
