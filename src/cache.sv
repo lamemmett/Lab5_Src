@@ -1,15 +1,15 @@
-module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=128, RETURN_SIZE=32, ASSOCIATIVITY=2, WRITE_MODE=2'b10)
-				(addrIn, 	dataUpOut, 	dataUpIn, 		fetchComplete, enableIn, 	writeCompleteOut, writeIn,
+module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=128, RETURN_SIZE=32, ASSOCIATIVITY=2, WRITE_MODE=2'b10)
+				(addrIn, 	dataUpOut, 	dataUpIn, 		fetchComplete, enableIn, 	writeCompleteOut,   writeIn,
 				 addrOut,	dataDownIn,	dataDownOut,	fetchReceive,	enableOut,	writeCompleteIn,	writeOut,
-				 clock, reset);
+				 clock,     reset);
 	
 	parameter [1:0] WRITE_AROUND = 2'b00, WRITE_THROUGH = 2'b01, WRITE_BACK = 2'b10;
 	
 	parameter COUNTER_SIZE = $clog2(CACHE_DELAY);
 	
 	parameter WORD_SELECT_SIZE = $clog2(BLOCK_SIZE/RETURN_SIZE);
-	parameter INDEX_SIZE = $clog2(SIZE/BLOCK_SIZE);
-	parameter TAG_SIZE = ADDR_LENGTH - $clog2(BLOCK_SIZE/32) - INDEX_SIZE;
+	parameter INDEX_SELECT_SIZE = $clog2(INDEX_SIZE);
+	parameter TAG_SIZE = ADDR_LENGTH - $clog2(BLOCK_SIZE/32) - INDEX_SELECT_SIZE;
 	
 	parameter NUM_ASSO_BITS = $clog2(ASSOCIATIVITY);
 	
@@ -37,15 +37,15 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=12
 	
 	assign writeCompleteOut = writeCompleteIn;
 	
-	wire [WORD_SELECT_SIZE-1:0]	wordSelect 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE - INDEX_SIZE) -: WORD_SELECT_SIZE];
-	wire [INDEX_SIZE-1:0]			cacheIndex 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE) -: INDEX_SIZE];
+	wire [WORD_SELECT_SIZE-1:0]	wordSelect 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE - INDEX_SELECT_SIZE) -: WORD_SELECT_SIZE];
+	wire [INDEX_SELECT_SIZE-1:0]			cacheIndex 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE) -: INDEX_SELECT_SIZE];
 	wire [TAG_SIZE-1:0]				tag 			= addrIn[(ADDR_LENGTH-1) -: TAG_SIZE];
 	
 	// CACHE CONTENTS
-	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(BLOCK_SIZE-1):0]  data;
-	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(TAG_SIZE-1):0] 	 tags;
-	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0]							 validBits;
-	reg [(SIZE/BLOCK_SIZE-1):0] [(ASSOCIATIVITY-1):0] 							 dirtyBits;
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(BLOCK_SIZE-1):0]  data;
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(TAG_SIZE-1):0] 	 tags;
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0]							 validBits;
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] 							 dirtyBits;
 	
 	// Counters and flags
 	reg [COUNTER_SIZE-1:0] counter;
@@ -58,7 +58,7 @@ module cache #(parameter SIZE=128, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=12
 	wire [(NUM_ASSO_BITS-1):0] LRUoutput;
 	
 	// instantiate LRU module
-	lru #(.INDEX_SIZE(SIZE/BLOCK_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY)) LRU
+	lru #(.INDEX_SIZE(INDEX_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY)) LRU
 		  (cacheIndex, assoIndex, LRUoutput, LRUwrite, LRUread, reset, clock);
 	
 	always @(*) begin
@@ -175,8 +175,8 @@ module cache_testbench();
 	// cache parameters
 	parameter WRITE_MODE = WRITE_BACK;
 	
-	parameter SIZEL1 = 128;
-	parameter SIZEL2 = 512;
+	parameter INDEX_SIZEL1 = 2;
+	parameter INDEX_SIZEL2 = 4;
 	parameter SIZEMEM = 2048;
 	
 	parameter BLOCK_SIZEL1 = 64;
@@ -242,12 +242,12 @@ module cache_testbench();
 	assign writeCompleteInL2		= writeCompleteOutMem;
 	assign writeInMem					= writeOutL2;
 
-	cache 			#(.SIZE(SIZEL1), .ADDR_LENGTH(ADDR_LENGTH), .BLOCK_SIZE(BLOCK_SIZEL1), .RETURN_SIZE(32), .WRITE_MODE(WRITE_MODE))
+	cache 			#(.INDEX_SIZE(INDEX_SIZEL1), .ADDR_LENGTH(ADDR_LENGTH), .BLOCK_SIZE(BLOCK_SIZEL1), .RETURN_SIZE(32), .WRITE_MODE(WRITE_MODE))
 			L1 		(addrInL1, 	dataUpOutL1, 	dataUpInL1, 	fetchCompleteL1, 	enableInL1, 	writeCompleteOutL1, 	writeInL1,
 						 addrOutL1,	dataDownInL1,	dataDownOutL1,	fetchReceiveL1,	enableOutL1,	writeCompleteInL1,	writeOutL1,
 						 clock, 		reset);
 						 
-	cache 			#(.SIZE(SIZEL2), .ADDR_LENGTH(ADDR_LENGTH), .BLOCK_SIZE(BLOCK_SIZEL2), .RETURN_SIZE(BLOCK_SIZEL1), .WRITE_MODE(WRITE_MODE))
+	cache 			#(.INDEX_SIZE(INDEX_SIZEL2), .ADDR_LENGTH(ADDR_LENGTH), .BLOCK_SIZE(BLOCK_SIZEL2), .RETURN_SIZE(BLOCK_SIZEL1), .WRITE_MODE(WRITE_MODE))
 			L2 		(addrInL2, 	dataUpOutL2, 	dataUpInL2, 	fetchCompleteL2, 	enableInL2, 	writeCompleteOutL2, 	writeInL2,
 						 addrOutL2,	dataDownInL2,	dataDownOutL2,	fetchReceiveL2,	enableOutL2,	writeCompleteInL2,	writeOutL2,
 						 clock, 		reset);
@@ -414,7 +414,7 @@ module cache_testbench();
 		enableIn <= 0;				@(posedge clock);
 		#t;
 		
-		addrIn = 0;				@(posedge clock);
+		addrIn = 0;					@(posedge clock);
 		enableIn <= 1;				@(posedge clock);
 		#(100*t);
 		enableIn <= 0;				@(posedge clock);
