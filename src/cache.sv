@@ -21,10 +21,10 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZ
 	input 		[(ADDR_LENGTH-1):0] 	addrIn;
 	output reg 	[(RETURN_SIZE-1):0] 	dataUpOut;
 	input 		[(RETURN_SIZE-1):0] 	dataUpIn;
-	output reg								fetchComplete;
-	input 									enableIn;
-	output 	 								writeCompleteOut;
-	input										writeIn;
+	output reg							fetchComplete;
+	input 								enableIn;
+	output reg							writeCompleteOut;
+	input								writeIn;
 	
 	// DOWN I/O
 	output reg 	[(ADDR_LENGTH-1):0] 	addrOut;
@@ -35,7 +35,9 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZ
 	input 									writeCompleteIn;
 	output reg								writeOut;
 	
-	assign writeCompleteOut = writeCompleteIn;
+	always @(*) begin
+		
+	end
 	
 	wire [WORD_SELECT_SIZE-1:0]	wordSelect 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE - INDEX_SELECT_SIZE) -: WORD_SELECT_SIZE];
 	wire [INDEX_SELECT_SIZE-1:0]			cacheIndex 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE) -: INDEX_SELECT_SIZE];
@@ -62,10 +64,14 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZ
 		  (cacheIndex, assoIndex, LRUoutput, LRUwrite, LRUread, reset, clock);
 	
 	always @(*) begin
+		if (WRITE_MODE != WRITE_BACK)
+			writeCompleteOut = writeCompleteIn;
 		if (~enableIn) begin
 			// Reset UP I/O
 			dataUpOut = 'x;
 			fetchComplete = 0;
+			if (WRITE_MODE == WRITE_BACK)
+				writeCompleteOut = 0;
 			
 			// Reset DOWN I/O
 			addrOut = 'x;
@@ -149,6 +155,7 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZ
 								data[cacheIndex][j][wordSelect*BLOCK_SIZE +: 32] = dataUpIn;
 								writeOut = 0;
 								enableOut = 0;
+								writeCompleteOut = 1;
 								break;	end
 							else if (j == (ASSOCIATIVITY - 1)) begin	// Try writing to lower cache if data not present here
 								writeOut = 1;
