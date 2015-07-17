@@ -8,7 +8,7 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1, RANDOM = 0)
 	input [(NUM_INDICES-1):0] index;
 	input [(COUNT_SIZE-1):0] asso_index;
 	
-	input write_trigger, read_trigger, reset, clk;
+	input write_trigger, read_trigger, reset;
 	
 	reg [(INDEX_SIZE-1):0][(ASSOCIATIVITY-1):0][(COUNT_SIZE-1):0] mem;
 	reg [(ASSOCIATIVITY-1):0] v;
@@ -101,7 +101,7 @@ module lru_testbench();
 	reg [(NUM_INDICES-1):0] index;
 	reg [(COUNT_SIZE-1):0] asso_index;
 	
-	reg write_trigger, read_trigger, reset, clk;
+	reg write_trigger, read_trigger, reset;
 
 	lru #(.INDEX_SIZE(INDEX_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY), .RANDOM(RANDOM)) test
 	(.index, .asso_index, .select, .write_trigger, .read_trigger, .reset);
@@ -114,6 +114,10 @@ module lru_testbench();
 		write_trigger <= 1'b1; #10;
 		asso_index = 3'b101;   read_trigger <= 1'b1; #10;
 		write_trigger <= 1'b0; read_trigger <= 1'b0; #10;
+		write_trigger <= 1'b1; #10;
+		write_trigger <= 1'b0; #10;
+		write_trigger <= 1'b1; #10;
+		write_trigger <= 1'b0; #10;
 		write_trigger <= 1'b1; #10;
 		write_trigger <= 1'b0; #10;
 		write_trigger <= 1'b1; #10;
