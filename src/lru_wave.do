@@ -11,7 +11,7 @@ add wave -noupdate /lru_testbench/test/v
 add wave -noupdate /lru_testbench/test/reading
 add wave -noupdate /lru_testbench/test/writing
 add wave -noupdate /lru_testbench/test/full
-add wave -noupdate /lru_testbench/test/r
+add wave -noupdate -radix binary /lru_testbench/test/r
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {44 ps} 0}
 quietly wave cursor active 1
@@ -29,4 +29,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {74 ps} {130 ps}
+WaveRestoreZoom {0 ps} {56 ps}

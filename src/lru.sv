@@ -29,11 +29,12 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1, RANDOM = 0)
 	int r = 0;
 	
 	always @(*) begin
+		full = full;
 		select = select;
 		if(select >= ASSOCIATIVITY - 1)
 			full = 1;
 			
-		if(full)
+		if(full && RANDOM)
 			select = r;
 		else
 			for(j = 0; j < ASSOCIATIVITY; j++)begin
@@ -91,7 +92,7 @@ endmodule
 module lru_testbench();
 	parameter INDEX_SIZE = 3;
 	parameter ASSOCIATIVITY = 4;
-	parameter RANDOM = 0;
+	parameter RANDOM = 1;
 	
 	parameter COUNT_SIZE = $clog2(ASSOCIATIVITY);
 	parameter NUM_INDICES = $clog2(INDEX_SIZE);

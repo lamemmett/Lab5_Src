@@ -56,7 +56,7 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZ
 	wire [(NUM_ASSO_BITS-1):0] LRUoutput;
 	
 	// instantiate LRU module
-	lru #(.INDEX_SIZE(INDEX_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY)) LRU
+	lru #(.INDEX_SIZE(INDEX_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY),  .RANDOM(0)) LRU
 		  (cacheIndex, assoIndex, LRUoutput, LRUwrite, LRUread, reset);
 	
 	always @(*) begin
@@ -407,6 +407,18 @@ module cache_testbench();
 		#t;
 		
 		addrIn = 40;				@(posedge clock);
+		enableIn <= 1;				@(posedge clock);
+		#(100*t);
+		enableIn <= 0;				@(posedge clock);
+		#t;
+		
+		addrIn = 48;				@(posedge clock);
+		enableIn <= 1;				@(posedge clock);
+		#(100*t);
+		enableIn <= 0;				@(posedge clock);
+		#t;
+		
+		addrIn = 0;					@(posedge clock);
 		enableIn <= 1;				@(posedge clock);
 		#(100*t);
 		enableIn <= 0;				@(posedge clock);
