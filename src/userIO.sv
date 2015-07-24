@@ -1,81 +1,130 @@
 module userIO #(parameter ID=1234567)
-	(clock, reset, addr, enable, write, dataIn, requestComplete, dataOut);
+	(clock, reset, addrIn, enableIn, writeIn, dataIn, requestComplete, dataOut);
 	
-	parameter NUM_CACHE_LEVELS = 4;
-	parameter ADDR_LENGTH = 13;
-	input clock, reset, enable, write;
+	parameter [1:0] WRITE_AROUND = 2'b00, WRITE_THROUGH = 2'b01, WRITE_BACK = 2'b10;
+	parameter ADDR_LENGTH = 16;
+	
+	input clock, reset, enableIn, writeIn;
 	input [31:0] dataIn;
-	input [(ADDR_LENGTH-1):0] addr;
+	input [(ADDR_LENGTH-1):0] addrIn;
 	output requestComplete;
 	output [31:0] dataOut;
 	
-	generate
-		parameter HASH = ID * 37;
-		
-		parameter BLOCK_SIZE_L1 = 64;
-		parameter BLOCK_SIZE_L2 = BLOCK_SIZE_L1 * ((2*((HASH/(10**1)) % 2)) + 2);
-		parameter BLOCK_SIZE_L3 = BLOCK_SIZE_L2 * ((2*((HASH/(10**2)) % 2)) + 2);
-		parameter BLOCK_SIZE_L4 = BLOCK_SIZE_L3 * ((2*((HASH/(10**3)) % 2)) + 2);
-		
-		parameter NUM_CACHE_INDEX_L1 	= (((HASH/(10**0))%10) % 8) + 1;
-		parameter NUM_CACHE_INDEX_L2 	= (((HASH/(10**1))%10) % 8) + 1;
-		parameter NUM_CACHE_INDEX_L3 	= (((HASH/(10**2))%10) % 8) + 1;
-		parameter NUM_CACHE_INDEX_L4	= (((HASH/(10**3))%10) % 8) + 1;
-		
-		parameter NUM_ASSO_INDEX_L1 	= (((47*HASH/(10**0))%10) % 8) + 1;
-		parameter NUM_ASSO_INDEX_L2 	= (((47*HASH/(10**1))%10) % 8) + 1;
-		parameter NUM_ASSO_INDEX_L3 	= (((47*HASH/(10**2))%10) % 8) + 1;
-		parameter NUM_ASSO_INDEX_L4	= (((47*HASH/(10**3))%10) % 8) + 1;
-		
-		// GENERATE THE ACTUAL CACHES
-		cache #(.INDEX_SIZE(NUM_CACHE_INDEX_L1), .ADDR_LENGTH(ADDR_LENGTH), .BLOCK_SIZE(BLOCK_SIZE_L1), .ASSOCIATIVITY(NUM_ASSO_INDEX_L1))
-				L1 (addrIn, 	dataUpOut, 	dataUpIn, 		fetchComplete, enableIn, 	writeCompleteOut,   writeIn,
-				 addrOut,	dataDownIn,	dataDownOut,	fetchReceive,	enableOut,	writeCompleteIn,	writeOut,
-				 clock,     reset);
-	endgenerate
+	// determine cache parameters
+	parameter HASH = ID * 37;
 	
-//	initial begin
-//		static integer i = 0;
-//		blockSizes[0] = 64;
-//		// calculate cache size-related parameters
-//		//for (integer i = 0; i < NUM_CACHE_LEVELS; i++) begin
-//			// calculate block sizes
-//			if (i != 0) begin
-//				blockSizes[i] = blockSizes[i-1] * ((2*((HASH/(10*i)) % 2)) + 2);	// lower cache block size is 2 or 4 times bigger than one above
-//			end
-//
-//			// calculate number of cache indices for each levels
-//			numCacheIndices[i] = (((HASH/(10**i))%10) % 8) + 1;
-//			if (numCacheIndices[i] > 4) begin
-//				numAssoIndices[i] = (((3*HASH/(10**i))%10) % 2) + 1;
-//			end else if (numCacheIndices[i] > 2) begin
-//				numAssoIndices[i] = (((5*HASH/(10**i))%10) % 4) + 1;
-//			end else begin
-//				numAssoIndices[i] = (((7*HASH/(10**i))%10) % 8) + 1;
-//			end
-//			
-//			// calculate cache sizes
-//			cacheSizes[i] = blockSizes[i] * numCacheIndices[i] * numAssoIndices[i];
-//		//end
-//		
-//		//generate
-//			// Create the memory system with numCacheLevels cache levels
-//			wire [(ADDR_LENGTH-1):0] addrInL1;
-//			wire [31:0] dataUpOutL1;
-//			wire [31:0] dataUpInL1;
-//			wire fetchCompleteL1, enableInL1, writeCompleteOutL1, writeInL1;
-//			wire [(ADDR_LENGTH-1):0] addrOutL1;
-//			wire [blockSizes[0]-1:0] dataDownInL1, dataDownOutL1;
-//			wire fetchReceiveL1, enableOutL1, writeCompleteInL1, writeOutL1;
-//		//endgenerate
-//	end
+	// Each cache's block size is either 2 or 4 times bigger than the previous one
+	parameter BLOCK_SIZE_L1 = 32 * ((2*((HASH/(10**0)) % 2)) + 2);
+	parameter BLOCK_SIZE_L2 = BLOCK_SIZE_L1 * ((2*((HASH/(10**1)) % 2)) + 2);
+	parameter BLOCK_SIZE_L3 = BLOCK_SIZE_L2 * ((2*((HASH/(10**2)) % 2)) + 2);
 	
+	// num cache indices is between 1-4
+	parameter NUM_CACHE_INDEX_L1 	= (((HASH/(10**0))%10) % 4) + 1;
+	parameter NUM_CACHE_INDEX_L2 	= (((HASH/(10**1))%10) % 4) + 1;
+	parameter NUM_CACHE_INDEX_L3 	= (((HASH/(10**2))%10) % 4) + 1;
+	
+	parameter NUM_ASSO_INDEX_L1 	= (((17*HASH/(10**0))%10) % 4) + 1;
+	parameter NUM_ASSO_INDEX_L2 	= (((17*HASH/(10**1))%10) % 4) + 1;
+	parameter NUM_ASSO_INDEX_L3 	= (((17*HASH/(10**2))%10) % 4) + 1;
+	
+	// num associativity indices is between 1-4
+	parameter CACHE_DELAY_L1		= ((23*HASH/(10**0))%10);
+	parameter CACHE_DELAY_L2		= ((23*HASH/(10**1))%10) * 10;
+	parameter CACHE_DELAY_L3		= ((23*HASH/(10**2))%10) * 100;
+	parameter CACHE_DELAY_MEM		= 1000;
+	
+	// CONNECTING WIRES FOR THE CACHE SYSTEM
+	wire [(ADDR_LENGTH-1):0] addrInL1;
+	wire [31:0] dataUpOutL1;
+	wire [31:0] dataUpInL1;
+	wire fetchCompleteL1, enableInL1, writeCompleteOutL1, writeInL1;
+	wire [(ADDR_LENGTH-1):0] addrOutL1;
+	wire [(BLOCK_SIZE_L1-1):0] dataDownInL1, dataDownOutL1;
+	wire fetchReceiveL1, enableOutL1, writeCompleteInL1, writeOutL1;
+	
+	wire [(ADDR_LENGTH-1):0] addrInL2;
+	wire [(BLOCK_SIZE_L1-1):0] dataUpOutL2;
+	wire [(BLOCK_SIZE_L1-1):0] dataUpInL2;
+	wire fetchCompleteL2, enableInL2, writeCompleteOutL2, writeInL2;
+	wire [(ADDR_LENGTH-1):0] addrOutL2;
+	wire [(BLOCK_SIZE_L2-1):0] dataDownInL2, dataDownOutL2;
+	wire fetchReceive_L2, enableOutL2, writeCompleteInL2, writeOutL2;
+	
+	wire [(ADDR_LENGTH-1):0] addrInL3;
+	wire [(BLOCK_SIZE_L2-1):0] dataUpOutL3;
+	wire [(BLOCK_SIZE_L2-1):0] dataUpInL3;
+	wire fetchCompleteL3, enableInL3, writeCompleteOutL3, writeInL3;
+	wire [(ADDR_LENGTH-1):0] addrOutL3;
+	wire [(BLOCK_SIZE_L3-1):0] dataDownInL3, dataDownOutL3;
+	wire fetchReceiveL3, enableOutL3, writeCompleteInL3, writeOutL3;
+	
+	wire [(ADDR_LENGTH-1):0] addrInMem;
+	wire [(BLOCK_SIZE_L3-1):0] dataUpOutMem, dataUpInMem;
+	wire fetchCompleteMem, enableInMem, writeCompleteOutMem, writeInMem;
+	
+	// Top-level I/O
+	assign 	dataOut 				= dataUpOutL1;
+	assign 	addrInL1				= addrIn;
+	assign 	dataUpInL1 			= dataIn;
+	assign 	enableInL1			= enableIn;
+	assign 	writeInL1			= writeIn;
+	assign 	requestComplete	= fetchCompleteL1 | writeCompleteOutL1;
+	
+	// L1 DOWN I/O
+	assign addrInL2					= addrOutL1;
+	assign dataDownInL1				= dataUpOutL2;
+	assign dataUpInL2					= dataDownOutL1;
+	assign fetchReceiveL1			= fetchCompleteL2;
+	assign enableInL2					= enableOutL1;
+	assign writeCompleteInL1		= writeCompleteOutL2;
+	assign writeInL2					= writeOutL1;
+	
+	// L2 DOWN I/O
+	assign addrInL3					= addrOutL2;
+	assign dataDownInL2				= dataUpOutL3;
+	assign dataUpInL3					= dataDownOutL2;
+	assign fetchReceiveL2			= fetchCompleteL3;
+	assign enableInL3					= enableOutL2;
+	assign writeCompleteInL2		= writeCompleteOutL3;
+	assign writeInL3					= writeOutL2;
+	
+	// L3 DOWN I/O
+	assign addrInMem					= addrOutL3;
+	assign dataDownInL3				= dataUpOutMem;
+	assign dataUpInMem				= dataDownOutL3;
+	assign fetchReceiveL3			= fetchCompleteMem;
+	assign enableInMem				= enableOutL3;
+	assign writeCompleteInL3		= writeCompleteOutMem;
+	assign writeInMem					= writeOutL3;
+	
+	// INSTANTIATE THE ACTUAL CACHES
+	cache 			#(.INDEX_SIZE(NUM_CACHE_INDEX_L1), .ADDR_LENGTH(ADDR_LENGTH), .CACHE_DELAY(CACHE_DELAY_L1), 
+						  .BLOCK_SIZE(BLOCK_SIZE_L1), .RETURN_SIZE(32), .ASSOCIATIVITY(NUM_ASSO_INDEX_L1), .WRITE_MODE(WRITE_THROUGH))
+			L1 		(addrInL1, 	dataUpOutL1, 	dataUpInL1, 	fetchCompleteL1, 	enableInL1, 	writeCompleteOutL1, 	writeInL1,
+						 addrOutL1,	dataDownInL1,	dataDownOutL1,	fetchReceiveL1,	enableOutL1,	writeCompleteInL1,	writeOutL1,
+						 clock, 		reset);
+						 
+	cache 			#(.INDEX_SIZE(NUM_CACHE_INDEX_L2), .ADDR_LENGTH(ADDR_LENGTH), .CACHE_DELAY(CACHE_DELAY_L2), 
+						  .BLOCK_SIZE(BLOCK_SIZE_L2), .RETURN_SIZE(BLOCK_SIZE_L1), .ASSOCIATIVITY(NUM_ASSO_INDEX_L2), .WRITE_MODE(WRITE_THROUGH))
+			L2 		(addrInL2, 	dataUpOutL2, 	dataUpInL2, 	fetchCompleteL2, 	enableInL2, 	writeCompleteOutL2, 	writeInL2,
+						 addrOutL2,	dataDownInL2,	dataDownOutL2,	fetchReceiveL2,	enableOutL2,	writeCompleteInL2,	writeOutL2,
+						 clock, 		reset);
+						 
+	cache 			#(.INDEX_SIZE(NUM_CACHE_INDEX_L3), .ADDR_LENGTH(ADDR_LENGTH), .CACHE_DELAY(CACHE_DELAY_L3), 
+						  .BLOCK_SIZE(BLOCK_SIZE_L3), .RETURN_SIZE(BLOCK_SIZE_L2), .ASSOCIATIVITY(NUM_ASSO_INDEX_L3), .WRITE_MODE(WRITE_THROUGH))
+			L3 		(addrInL3, 	dataUpOutL3, 	dataUpInL3, 	fetchCompleteL3, 	enableInL3, 	writeCompleteOutL3, 	writeInL3,
+						 addrOutL3,	dataDownInL3,	dataDownOutL3,	fetchReceiveL3,	enableOutL3,	writeCompleteInL3,	writeOutL3,
+						 clock, 		reset);
+	
+	mainMem			#(.SIZE(2**ADDR_LENGTH), .ADDR_LENGTH(ADDR_LENGTH), .RETURN_SIZE(BLOCK_SIZE_L3)) 
+			memory	(addrInMem, dataUpOutMem, 	dataUpInMem, 	fetchCompleteMem, enableInMem, 	writeCompleteOutMem, writeInMem,
+						 clock, 		reset); 
 endmodule 
 
 module userIO_testbench();
-	parameter i = 34;
 	reg clock, reset, enable;
 	reg [31:0] dataIn;
+	reg [15:0] addr;
 	wire requestComplete;
 	wire [31:0] dataOut;
 	
@@ -86,7 +135,5 @@ module userIO_testbench();
 		$stop;
 	end
 
-	parameter x = i *37;
-		
-	userIO #(.ID(x)) cacheSystem2 (clock, reset, dataIn, enable, requestComplete, dataOut);
+	userIO #(.ID(1130291)) cacheSystem (clock, reset, addr, enable, write, dataIn, requestComplete, dataOut);
 endmodule 

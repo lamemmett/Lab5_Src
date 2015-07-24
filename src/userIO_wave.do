@@ -1,14 +1,23 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /userIO_testbench/cacheSystem/#ublk#0#11/numCacheIndices
-add wave -noupdate /userIO_testbench/cacheSystem/#ublk#0#11/numAssoIndices
-add wave -noupdate /userIO_testbench/cacheSystem/#ublk#0#11/cacheSizes
-add wave -noupdate /userIO_testbench/cacheSystem/#ublk#0#11/blockSizes
-add wave -noupdate /userIO_testbench/cacheSystem/#ublk#0#11/numCacheLevels
-add wave -noupdate /userIO_testbench/cacheSystem/#ublk#0#11/HASH
+add wave -noupdate /userIO_testbench/cacheSystem/ID
+add wave -noupdate /userIO_testbench/cacheSystem/ADDR_LENGTH
+add wave -noupdate /userIO_testbench/cacheSystem/NUM_CACHE_INDEX_L1
+add wave -noupdate /userIO_testbench/cacheSystem/NUM_ASSO_INDEX_L1
+add wave -noupdate /userIO_testbench/cacheSystem/NUM_CACHE_INDEX_L2
+add wave -noupdate /userIO_testbench/cacheSystem/NUM_ASSO_INDEX_L2
+add wave -noupdate /userIO_testbench/cacheSystem/NUM_CACHE_INDEX_L3
+add wave -noupdate /userIO_testbench/cacheSystem/NUM_ASSO_INDEX_L3
+add wave -noupdate /userIO_testbench/cacheSystem/CACHE_DELAY_L1
+add wave -noupdate /userIO_testbench/cacheSystem/CACHE_DELAY_L2
+add wave -noupdate /userIO_testbench/cacheSystem/CACHE_DELAY_L3
+add wave -noupdate /userIO_testbench/cacheSystem/CACHE_DELAY_MEM
+add wave -noupdate /userIO_testbench/cacheSystem/BLOCK_SIZE_L1
+add wave -noupdate /userIO_testbench/cacheSystem/BLOCK_SIZE_L2
+add wave -noupdate /userIO_testbench/cacheSystem/BLOCK_SIZE_L3
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {13 ps} 0}
-quietly wave cursor active 1
+quietly wave cursor active 0
 configure wave -namecolwidth 447
 configure wave -valuecolwidth 153
 configure wave -justifyvalue left
