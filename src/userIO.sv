@@ -13,6 +13,11 @@ module userIO #(parameter ID=1234567)
 	// determine cache parameters
 	parameter HASH = ID * 37;
 	
+	// Determine each cache's write-mode
+	parameter WRITE_MODE_L1	= HASH 			% 3;
+	parameter WRITE_MODE_L2 = (HASH / 10) 	% 3;
+	parameter WRITE_MODE_L3 = (HASH / 100) % 3;
+	
 	// Each cache's block size is either 2 or 4 times bigger than the previous one
 	parameter BLOCK_SIZE_L1 = 32 * ((2*((HASH/(10**0)) % 2)) + 2);
 	parameter BLOCK_SIZE_L2 = BLOCK_SIZE_L1 * ((2*((HASH/(10**1)) % 2)) + 2);
@@ -99,41 +104,90 @@ module userIO #(parameter ID=1234567)
 	
 	// INSTANTIATE THE ACTUAL CACHES
 	cache 			#(.INDEX_SIZE(NUM_CACHE_INDEX_L1), .ADDR_LENGTH(ADDR_LENGTH), .CACHE_DELAY(CACHE_DELAY_L1), 
-						  .BLOCK_SIZE(BLOCK_SIZE_L1), .RETURN_SIZE(32), .ASSOCIATIVITY(NUM_ASSO_INDEX_L1), .WRITE_MODE(WRITE_THROUGH))
+						  .BLOCK_SIZE(BLOCK_SIZE_L1), .RETURN_SIZE(32), .ASSOCIATIVITY(NUM_ASSO_INDEX_L1), .WRITE_MODE(WRITE_MODE_L1))
 			L1 		(addrInL1, 	dataUpOutL1, 	dataUpInL1, 	fetchCompleteL1, 	enableInL1, 	writeCompleteOutL1, 	writeInL1,
 						 addrOutL1,	dataDownInL1,	dataDownOutL1,	fetchReceiveL1,	enableOutL1,	writeCompleteInL1,	writeOutL1,
 						 clock, 		reset);
 						 
 	cache 			#(.INDEX_SIZE(NUM_CACHE_INDEX_L2), .ADDR_LENGTH(ADDR_LENGTH), .CACHE_DELAY(CACHE_DELAY_L2), 
-						  .BLOCK_SIZE(BLOCK_SIZE_L2), .RETURN_SIZE(BLOCK_SIZE_L1), .ASSOCIATIVITY(NUM_ASSO_INDEX_L2), .WRITE_MODE(WRITE_THROUGH))
+						  .BLOCK_SIZE(BLOCK_SIZE_L2), .RETURN_SIZE(BLOCK_SIZE_L1), .ASSOCIATIVITY(NUM_ASSO_INDEX_L2), .WRITE_MODE(WRITE_MODE_L2))
 			L2 		(addrInL2, 	dataUpOutL2, 	dataUpInL2, 	fetchCompleteL2, 	enableInL2, 	writeCompleteOutL2, 	writeInL2,
 						 addrOutL2,	dataDownInL2,	dataDownOutL2,	fetchReceiveL2,	enableOutL2,	writeCompleteInL2,	writeOutL2,
 						 clock, 		reset);
 						 
 	cache 			#(.INDEX_SIZE(NUM_CACHE_INDEX_L3), .ADDR_LENGTH(ADDR_LENGTH), .CACHE_DELAY(CACHE_DELAY_L3), 
-						  .BLOCK_SIZE(BLOCK_SIZE_L3), .RETURN_SIZE(BLOCK_SIZE_L2), .ASSOCIATIVITY(NUM_ASSO_INDEX_L3), .WRITE_MODE(WRITE_THROUGH))
+						  .BLOCK_SIZE(BLOCK_SIZE_L3), .RETURN_SIZE(BLOCK_SIZE_L2), .ASSOCIATIVITY(NUM_ASSO_INDEX_L3), .WRITE_MODE(WRITE_MODE_L3))
 			L3 		(addrInL3, 	dataUpOutL3, 	dataUpInL3, 	fetchCompleteL3, 	enableInL3, 	writeCompleteOutL3, 	writeInL3,
 						 addrOutL3,	dataDownInL3,	dataDownOutL3,	fetchReceiveL3,	enableOutL3,	writeCompleteInL3,	writeOutL3,
 						 clock, 		reset);
 	
-	mainMem			#(.SIZE(2**ADDR_LENGTH), .ADDR_LENGTH(ADDR_LENGTH), .RETURN_SIZE(BLOCK_SIZE_L3)) 
+	mainMem			#(.SIZE(2**ADDR_LENGTH), .ADDR_LENGTH(ADDR_LENGTH), .MEM_DELAY(CACHE_DELAY_MEM), .RETURN_SIZE(BLOCK_SIZE_L3)) 
 			memory	(addrInMem, dataUpOutMem, 	dataUpInMem, 	fetchCompleteMem, enableInMem, 	writeCompleteOutMem, writeInMem,
 						 clock, 		reset); 
 endmodule 
 
 module userIO_testbench();
-	reg clock, reset, enable;
+	reg clock, reset, enable, write;
 	reg [31:0] dataIn;
 	reg [15:0] addr;
 	wire requestComplete;
 	wire [31:0] dataOut;
+	parameter t = 10;
 	
-	//userIO #(.ID(1130291)) cacheSystem (clock, reset, dataIn, enable, requestComplete, dataOut);
+	userIO #(.ID(1130292)) cacheSystem (clock, reset, addr, enable, write, dataIn, requestComplete, dataOut);
 	
+	always #(t/2) clock = ~clock;
+	
+	integer start = 0, lastDelay = 0, L1delay = 0, i = 0;
+	
+	// -- UTILITIES --
+	// Log start and stop times on console
+	always @(posedge enable) begin
+		@(posedge clock);
+		while (~requestComplete) #t;
+		start = $time;
+	end
+	// display and save delay of last operation
+	always @(posedge requestComplete) begin
+		lastDelay = ($time-start)/t;
+		$write("Delay of last operation: "); $display(lastDelay);
+	end
+	
+	// BEGIN TESTS
 	initial begin
-		#20;
+		// Reset and initialize cache
+		enable = 0;
+		dataIn = 0;
+		clock = 0;
+		write = 0;
+		addr = 0;
+		reset = 1;
+		#(2*t);
+		reset = 0;
+		
+		// read address 0, loads into all caches
+		enable <= 1;				@(posedge clock);
+		while (~requestComplete) #t;
+		enable <= 0;				@(posedge clock);
+		#t;
+		
+		// read address 0 again, the delay time of this operation is the L1 cache delay
+		enable <= 1;				@(posedge clock);	
+		while (~requestComplete) #t;
+		enable <= 0;				@(posedge clock);
+		L1delay = lastDelay;
+		$write("L1 DELAY: "); $write(L1delay); $display(" CLOCK CYCLE(S)");
+		#t;
+		
+		while (lastDelay == L1delay) begin
+			addr = i;
+			enable <= 1;				@(posedge clock);
+			while (~requestComplete) #t;
+			enable <= 0;				@(posedge clock);
+			if (lastDelay == L1delay) i++;
+		end
+		$write("L1 BLOCK SIZE: "); $write(i*32); $display(" BITS");
 		$stop;
 	end
 
-	userIO #(.ID(1130291)) cacheSystem (clock, reset, addr, enable, write, dataIn, requestComplete, dataOut);
 endmodule 

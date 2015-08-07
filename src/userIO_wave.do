@@ -1,23 +1,13 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /userIO_testbench/cacheSystem/ID
-add wave -noupdate /userIO_testbench/cacheSystem/ADDR_LENGTH
-add wave -noupdate /userIO_testbench/cacheSystem/NUM_CACHE_INDEX_L1
-add wave -noupdate /userIO_testbench/cacheSystem/NUM_ASSO_INDEX_L1
-add wave -noupdate /userIO_testbench/cacheSystem/NUM_CACHE_INDEX_L2
-add wave -noupdate /userIO_testbench/cacheSystem/NUM_ASSO_INDEX_L2
-add wave -noupdate /userIO_testbench/cacheSystem/NUM_CACHE_INDEX_L3
-add wave -noupdate /userIO_testbench/cacheSystem/NUM_ASSO_INDEX_L3
-add wave -noupdate /userIO_testbench/cacheSystem/CACHE_DELAY_L1
-add wave -noupdate /userIO_testbench/cacheSystem/CACHE_DELAY_L2
-add wave -noupdate /userIO_testbench/cacheSystem/CACHE_DELAY_L3
-add wave -noupdate /userIO_testbench/cacheSystem/CACHE_DELAY_MEM
-add wave -noupdate /userIO_testbench/cacheSystem/BLOCK_SIZE_L1
-add wave -noupdate /userIO_testbench/cacheSystem/BLOCK_SIZE_L2
-add wave -noupdate /userIO_testbench/cacheSystem/BLOCK_SIZE_L3
+add wave -noupdate /userIO_testbench/clock
+add wave -noupdate /userIO_testbench/reset
+add wave -noupdate /userIO_testbench/write
+add wave -noupdate /userIO_testbench/addr
+add wave -noupdate /userIO_testbench/enable
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {13 ps} 0}
-quietly wave cursor active 0
+WaveRestoreCursors {{Cursor 1} {16934 ps} 0}
+quietly wave cursor active 1
 configure wave -namecolwidth 447
 configure wave -valuecolwidth 153
 configure wave -justifyvalue left
@@ -32,4 +22,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {687 ps}
+WaveRestoreZoom {0 ps} {20736 ps}
