@@ -1,23 +1,113 @@
-module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZE=128, RETURN_SIZE=32, ASSOCIATIVITY=2, WRITE_MODE=2'b10)
-				(addrIn, 	dataUpOut, 	dataUpIn, 		fetchComplete, enableIn, 	writeCompleteOut,   writeIn,
-				 addrOut,	dataDownIn,	dataDownOut,	fetchReceive,	enableOut,	writeCompleteIn,	writeOut,
-				 clock,     reset);
+/* This is the cache module. It models a variable size and associativity cache
+   with variable delay. This module will be used to simulate each cache level.
+   
+	User                        L1                            Main
+	          +-----------------------------------+   +------------------
+	-->	   -->| addrIn                    addrOut |-->| addrIn           
+	<--	   <--| dataUpOut              dataDownIn |<--| dataUpOut        
+    -->	   -->| dataUpIn              dataDownOut |-->| dataUpIn         
+	<--	   <--| fetchComplete        fetchReceive |<--| fetchComplete    
+	-->	   -->| enableIn                enableOut |-->| enableIn         
+	<--	   <--| writeCompleteOut  writeCompleteIn |<--| writeCompleteOut 
+	-->	   -->| writeIn                  writeOut |-->| writeIn          
+			  +-----------------------------------+   +------------------
+    
+    PARAMETERS: 
+        INDEX_SIZE: determines the number of cache indices
+        ADDR_LENGTH: number of bits required to address memory
+			*REQUIREMENTS:
+				ADDR_LENGTH must be great enough to address all of the bits in
+				main memory, which should be larger then every cache above it
+        CACHE_DELAY: delay experienced when accessing cache
+        BLOCK_SIZE: number of bits in individual block in cache
+			*REQUIREMENTS:
+			    BLOCK_SIZE can not be the same as the RETURN_SIZE, it must be
+				larger by a factor of 2
+	    RETURN_SIZE: number of bits returned to the higher cache
+		    *REQUIREMENTS:
+				RETURN_SIZE can not be the same as the BLOCK_SIZE, it must be
+				smaller by a factor of 2
+        ASSOCIATIVITY: cache associativity
+		    *NOTE:
+				to generate a direct mapped cache, have an ASSOCIATIVITY of 10
+				to generate a fully associative cache, have an ASSOCIATIVITY
+				such that the INDEX_SIZE is just 1
+	    WRITE_MODE:
+            WRITE_AROUND: when preforming write, simply invalidate spot and
+		        pass data down
+		    WRITE_THROUGH: when preforming write, write data to cache and pass
+		        data down
+		    WRITE_BACK: when preforming write, write data to cache and mark the
+		        pot using a "dirty bit"; when attempting to read data, pass the
+			    data down
+		      
+	Upward I/O:
+        addrIn: address selected for cache operation
+		dataUpOut: data output to the cache above
+		dataUpIn: data input from the cache above
+		fetchComplete: signal that outputs when a fetch operation finishes
+            (1 = fetch finished)
+		enableIn: signal that starts the cache
+			(1 = enabled, else disabled)
+		writeCompleteOut: signal that outputs when a write operation finishes
+		    (1 = write finished)
+		writeIn: signal that determines whether the cache is writing or reading
+		    (1 = write, else read)
+		
+	Downward I/O:
+		addrOut: address output down to the lower cache
+		dataDownIn: data received from lower cache
+		dataDownOut: data passed down to the lower cache
+		fetchReceive: signal received indicating that lower cache has fetched
+			(1 = fetch received)
+		enableOut: signal that starts the lower cache
+			(1 = enabled, else disabled)
+		writeCompleteIn: signal received indicating that lower cache has 
+			finished writing
+		    (1 = lower write finished)
+	    writeOut: signal that determines whether the lower cache is writing or
+		    reading
+		    (1 = write, else read)
+			
+	General I/O:
+	    clock: system clock
+		reset: resets cache system (1 = reset)
+ */
+`protect
+module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, 
+	BLOCK_SIZE=128, RETURN_SIZE=32, ASSOCIATIVITY=2, WRITE_MODE=2'b10)
+	(addrIn, 	dataUpOut, 	dataUpIn, 		fetchComplete, enableIn, 	writeCompleteOut,   writeIn,
+	 addrOut,	dataDownIn,	dataDownOut,	fetchReceive,	enableOut,	writeCompleteIn,	writeOut,
+	 clock,     reset);
 	
-	parameter [1:0] WRITE_AROUND = 2'b00, WRITE_THROUGH = 2'b01, WRITE_BACK = 2'b10;
+	/* types of write systems */
+	parameter [1:0] WRITE_AROUND = 2'b00, 
+					WRITE_THROUGH = 2'b01, 
+					WRITE_BACK = 2'b10;
 	
+	/* size of the counter used to count to delay */
 	parameter COUNTER_SIZE = $clog2(CACHE_DELAY);
 	
+	/* number of bits needed to address each "word" in cache; not actually
+	   selecting words because the cache's blocks are instead divided into
+	   returnable chunks. For example if block size is 256 and return size is
+	   64, the cache will be divided into 4 blocks and have a WORD_SELECT_SIZE
+	   of 2. */
 	parameter WORD_SELECT_SIZE = $clog2(BLOCK_SIZE/RETURN_SIZE);
+	
+	/* number of bits needed to address the cache's entire index */
 	parameter INDEX_SELECT_SIZE = $clog2(INDEX_SIZE);
+	
+	/* leftover bits in the address become the tag */
 	parameter TAG_SIZE = ADDR_LENGTH - $clog2(BLOCK_SIZE/32) - INDEX_SELECT_SIZE;
 	
+	/* number of bits needed to index all associativities */
 	parameter NUM_ASSO_BITS = $clog2(ASSOCIATIVITY);
 	
-	// I/O STUFF	------
-	
+	/* General I/O */
 	input clock, reset;
 	
-	// UP I/O
+	/* Upward I/O */
 	input 		[(ADDR_LENGTH-1):0] 	addrIn;
 	output reg 	[(RETURN_SIZE-1):0] 	dataUpOut;
 	input 		[(RETURN_SIZE-1):0] 	dataUpIn;
@@ -26,65 +116,125 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZ
 	output reg							writeCompleteOut;
 	input								writeIn;
 	
-	// DOWN I/O
+	/* Downward I/O */
 	output reg 	[(ADDR_LENGTH-1):0] 	addrOut;
 	input			[(BLOCK_SIZE-1):0]	dataDownIn;
 	output reg	[(BLOCK_SIZE-1):0]	dataDownOut;
-	input										fetchReceive;
+	input									fetchReceive;
 	output reg								enableOut;
 	input 									writeCompleteIn;
 	output reg								writeOut;
 	
+	/* here the given address is broken down into its pieces (tag, cacheIndex, wordSelect)*/
 	wire [WORD_SELECT_SIZE-1:0]	wordSelect 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE - INDEX_SELECT_SIZE) -: WORD_SELECT_SIZE];
 	wire [INDEX_SELECT_SIZE-1:0]			cacheIndex 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE) -: INDEX_SELECT_SIZE];
 	wire [TAG_SIZE-1:0]				tag 			= addrIn[(ADDR_LENGTH-1) -: TAG_SIZE];
 	
-	// CACHE CONTENTS
-	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(BLOCK_SIZE-1):0]  data;
-	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(TAG_SIZE-1):0] 	 tags;
-	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0]							 validBits;
-	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] 							 dirtyBits;
+	/* CACHE CONTENTS 
+	    
+		data: registers where data is stored
+		tags: registers where tag is stored, used to identify data
+		validBits: registers used to ensure the validity of data
+			(1 = valid)
+		dirtyBits: registers used in WRITE_BACK to keep track of which spots in
+			data are waiting to be passed down and written in other caches
+			(1 = waiting)
+	 */
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(BLOCK_SIZE-1):0] data;
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] [(TAG_SIZE-1):0] 	tags;
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0]					validBits;
+	reg [(INDEX_SIZE-1):0] [(ASSOCIATIVITY-1):0] 					dirtyBits;
 	
-	// Counters and flags
-	reg [COUNTER_SIZE-1:0] counter;
-	reg startCounter;
-	reg waitingForLower = 0;
-	// LRU ports
-	reg LRUread = 0;
-	reg LRUwrite = 0;
-	reg [(NUM_ASSO_BITS-1):0] assoIndex = 0;
+	/* Counters and Flags 
+		
+		counter: counter which counts the cache delay
+		startCounter: flag that indicates whether to startCounter
+			(1 = start)
+	
+	 */
+	reg [COUNTER_SIZE:0] counter;
+	reg startCounter;	
+	
+	/* LRU ports
+		
+		LRUread: used to indicate to the LRU that a read has occurred
+	    LRUwrite: used to indicate to the LRU that a write has occurred
+		assoIndex: associativity index where the read or write had occurred
+	    LRUoutput: last accessed (or random) location selected for replacement
+			for the fetch operation
+	 */
+	reg LRUread;
+	reg LRUwrite;
+	reg [(NUM_ASSO_BITS-1):0] assoIndex;
 	wire [(NUM_ASSO_BITS-1):0] LRUoutput;
 	
-	// instantiate LRU module
-	lru #(.INDEX_SIZE(INDEX_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY),  .RANDOM(0)) LRU
-		  (cacheIndex, assoIndex, LRUoutput, LRUwrite, LRUread, reset);
+	/* instantiation of this cache's LRU module */
+	lru #(.INDEX_SIZE(INDEX_SIZE), .ASSOCIATIVITY(ASSOCIATIVITY), .RANDOM(0))
+		LRU (.index(cacheIndex), .asso_index(assoIndex), .select(LRUoutput),
+			 .write_trigger(LRUwrite), .read_trigger(LRUread), .reset);
 	
 	always @(*) begin
+		/* Something about making sure each reg is assigned a value every time
+		   the thing runs though the always block. */
+		dataUpOut = dataUpOut;
+		fetchComplete = fetchComplete;
+		writeCompleteOut = writeCompleteOut;
+		addrOut = addrOut;
+		dataDownOut = dataDownOut;
+		enableOut = enableOut;
+		writeOut = writeOut;
+		data = data;
+		tags = tags;
+		validBits = validBits;
+		dirtyBits = dirtyBits;
+		startCounter = startCounter;
+		LRUread = LRUread;
+		LRUwrite = LRUwrite;
+		assoIndex = assoIndex;
+		
+		/* If the write mode isn't WRITE_BACK, then writeCompleteOut will
+		   simply be passed up from the lower cache. In the case of 
+		   WRITE_THROUGH, every cache would have been written to and in the
+		   case of WRITE_AROUND main memory would have been written to. Main
+		   memory will pass up a 1 indicating that the write has finished */
 		if (WRITE_MODE != WRITE_BACK)
 			writeCompleteOut = writeCompleteIn;
 		else
+			/* If the write mode is WRITE_BACK, then writeCompleteOut will be
+			   assigned father down in the code. */
 			writeCompleteOut = 0;
-			
+		
+		/* If this cache is not enabled, reset I/O, counters, and flags. */
 		if (~enableIn) begin
-			// Reset UP I/O
+		
+			/* Reset Upward I/O */
 			dataUpOut = 'x;
 			fetchComplete = 0;
 			
-			// Reset DOWN I/O
+			/* Reset Downward I/O */
 			addrOut = 'x;
 			dataDownOut = 'x;
 			enableOut = 0;
 			writeOut = 0;
 			
-			// Reset various counters and flags
+			/* Reset various counters and flags */
 			LRUread = 0;
 			LRUwrite = 0;
 			counter = 0;
 		end
-		else if (enableOut) begin	// missed in this cache, waiting for retrieval from lower level
+		
+		/* If this cache is enabled and the lower cache is enabled, it means
+		   that this cache has missed, and is now waiting for data retrieval
+		   from the lower level. */
+		else if (enableOut) begin
+		
+			/* Data has been retrieved so the lower cache can be turned off */
 			if (fetchReceive) begin
 				enableOut = 0;
-				// check dirty bits for write-back functionality
+				
+				/* dirty bits are checked for write-back functionality; if the
+				   current data is "dirty" then it it passed down to be written
+				   in lower cache */
 				if (dirtyBits[cacheIndex][LRUoutput] == 1) begin
 					addrOut = {tags[cacheIndex], cacheIndex, wordSelect};
 					dataDownOut = data[cacheIndex][LRUoutput];
@@ -92,70 +242,119 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZ
 					enableOut = 1;
 					dirtyBits[cacheIndex][LRUoutput] = 0;
 				end
-				dataUpOut = dataDownIn[wordSelect*RETURN_SIZE +: RETURN_SIZE];
+				
+				/* store and output the found data and set validBits, tag, and
+				   data accordingly */
 				validBits[cacheIndex][LRUoutput] = 1;
 				tags[cacheIndex][LRUoutput] = tag;
 				data[cacheIndex][LRUoutput] = dataDownIn;
+				dataUpOut = dataDownIn[wordSelect*RETURN_SIZE +: RETURN_SIZE];
+				
+				/* A write has just occurred, so we need trigger the lru */
 				LRUwrite = 1;
 				
+				/* finished fetching data */
 				fetchComplete = 1;
 			end
 		end
-		else if (enableIn) begin	// wait for counter delay, perform read/write operation
+		
+		/* I this cache is enabled and the lower cache is not enabled, it means
+		   we are about to preform a read or write operation, start that
+		   counter. */
+		else if (enableIn) begin
 			startCounter = 1;
+			
+			/* cache delay has occurred, stop that counter */
 			if (counter >= CACHE_DELAY) begin
 				startCounter = 0;
-				// Read operation
+				
+				/* preforming a read operation */
 				if (~writeIn) begin
+					
+					/* search through the cache for data */
 					for (int j=0; j<ASSOCIATIVITY; j++) begin
-						// data here
+						
+						/* If the tags match and valid bit is 1 then data has
+						   been found */
 						if(tags[cacheIndex][j] == tag && validBits[cacheIndex][j] == 1) begin
+							
+							/* set LRU ports to indicate that a read has occurred */
 							assoIndex = j;
 							LRUread = 1;
+							
+							/* output found data */
 							dataUpOut = data[cacheIndex][j][(wordSelect*RETURN_SIZE) +: RETURN_SIZE];
+							
+							/* finished "fetching"" data */
 							fetchComplete = 1;
+							
+							/* don't need to continue through for loop */
 							break;	
 						end
-						// data not here
+						
+						/* searched though entire cache and didn't find the data */
 						else if (j == (ASSOCIATIVITY - 1)) begin
+							
+							/* pass down the address */
 							addrOut = addrIn;
+							
+							/* enable the lower cache */
 							enableOut = 1;
 						end
 					end
 				end
-				// Write operation
+				
+				/* preforming a write operation */
 				else begin
+					
+					/* address, data, and write signal will be passed down */
 					addrOut = addrIn;
 					dataDownOut = dataUpIn;
 					writeOut = 1;
+					
+					/* Now check the write mode for this cache */
+					
+					/* If the write mode is WRITE_AROUND, simply invalidate
+					   the valid bit and enable the lower cache. */
 					if (WRITE_MODE == WRITE_AROUND) begin
 						for (int j=0; j<ASSOCIATIVITY; j++) begin
 							if(tags[cacheIndex][j] == tag && validBits[cacheIndex][j] == 1) begin
 								validBits[cacheIndex][j] = 0;
-								enableOut = 1;
 								break;	end
 						end
+						
+						/* enable the lower cache */
+						enableOut = 1;
 					end
+					
+					/* If the write mode is WRITE_THROUGH, write the data to
+					   the appropriate location, and enable the lower cache. */
 					else if (WRITE_MODE == WRITE_THROUGH) begin
 						for (int j=0; j<ASSOCIATIVITY; j++) begin
 							if(tags[cacheIndex][j] == tag && validBits[cacheIndex][j] == 1) begin
 								data[cacheIndex][j][wordSelect*BLOCK_SIZE +: 32] = dataUpIn;
-								enableOut = 1;
 								break;	end
 						end
+						
+						/* enable the lower cache */
+						enableOut = 1;
 					end
-					else begin	// WRITE_BACK
+					
+					/* If the write mode is WRITE_BACK and data was found set
+					   the dirtyBit, write the data, and don't enable the lower
+					   cache. If data wasn't found enable the lower cache.
+					 */
+					else begin
 						for (int j=0; j<ASSOCIATIVITY; j++) begin
 							if(tags[cacheIndex][j] == tag && validBits[cacheIndex][j] == 1) begin
 								dirtyBits[cacheIndex][j] = 1'b1;
-								tags[cacheIndex][j] = tag;
 								data[cacheIndex][j][wordSelect*BLOCK_SIZE +: 32] = dataUpIn;
-								writeOut = 0;
 								enableOut = 0;
 								writeCompleteOut = 1;
 								break;	end
-							else if (j == (ASSOCIATIVITY - 1)) begin	// Try writing to lower cache if data not present here
-								writeOut = 1;
+							/* Try writing to the lower cache if data is not
+							   here. */
+							else if (j == (ASSOCIATIVITY - 1)) begin
 								enableOut = 1;
 							end
 						end
@@ -166,12 +365,15 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, BLOCK_SIZ
 		end
 	end
 	
+	/* At every posedge if startCounter is true, increment the counter to track
+	   the cache delay. */
 	always @(posedge clock) begin
 		if (startCounter) begin
 			counter <= counter + 1;
 		end
 	end
 endmodule
+`endprotect
 
 module cache_testbench();
 	parameter [1:0] WRITE_AROUND = 2'b00, WRITE_THROUGH = 2'b01, WRITE_BACK = 2'b10;
