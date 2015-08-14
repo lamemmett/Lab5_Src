@@ -127,6 +127,13 @@ module userIO #(parameter ID=1234567)
 endmodule 
 
 module userIO_testbench();
+	`define READADDR(ADDR) 								\
+		addr = ADDR;										\
+		enable <= 1;				@(posedge clock);	\
+		while (~requestComplete) #t;					\
+		enable <= 0;				@(posedge clock);	\
+		#t;
+		
 	reg clock, reset, enable, write;
 	reg [31:0] dataIn;
 	reg [15:0] addr;
@@ -143,9 +150,7 @@ module userIO_testbench();
 	// -- UTILITIES --
 	// Log start and stop times on console
 	always @(posedge enable) begin
-		@(posedge clock);
-		while (~requestComplete) #t;
-		start = $time;
+		start <= $time;				@(posedge clock);
 	end
 	// display and save delay of last operation
 	always @(posedge requestComplete) begin
@@ -163,30 +168,27 @@ module userIO_testbench();
 		addr = 0;
 		reset = 1;
 		#(2*t);
-		reset = 0;
+		reset <= 0;		@(posedge clock);
 		
 		// read address 0, loads into all caches
-		enable <= 1;				@(posedge clock);
-		while (~requestComplete) #t;
-		enable <= 0;				@(posedge clock);
-		#t;
+		`READADDR(0);
 		
 		// read address 0 again, the delay time of this operation is the L1 cache delay
-		enable <= 1;				@(posedge clock);	
-		while (~requestComplete) #t;
-		enable <= 0;				@(posedge clock);
+		`READADDR(0);
 		L1delay = lastDelay;
 		$write("L1 DELAY: "); $write(L1delay); $display(" CLOCK CYCLE(S)");
-		#t;
 		
-		while (lastDelay == L1delay) begin
-			addr = i;
-			enable <= 1;				@(posedge clock);
-			while (~requestComplete) #t;
-			enable <= 0;				@(posedge clock);
-			if (lastDelay == L1delay) i++;
-		end
-		$write("L1 BLOCK SIZE: "); $write(i*32); $display(" BITS");
+		addr = 1;										
+		enable <= 1;				@(posedge clock);	
+		while (~requestComplete) #t;					
+		enable <= 0;				@(posedge clock);	
+		#(10*t);
+//		while (lastDelay == L1delay) begin
+//			$display(i);
+//			`READADDR(i);
+//			if (lastDelay <= L1delay) i++;
+//		end
+//		$write("L1 BLOCK SIZE: "); $write(i*32); $display(" BITS");
 		$stop;
 	end
 
