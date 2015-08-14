@@ -127,8 +127,9 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 	
 	/* here the given address is broken down into its pieces (tag, cacheIndex, wordSelect)*/
 	wire [WORD_SELECT_SIZE-1:0]	wordSelect 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE - INDEX_SELECT_SIZE) -: WORD_SELECT_SIZE];
-	wire [INDEX_SELECT_SIZE-1:0]			cacheIndex 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE) -: INDEX_SELECT_SIZE];
+	wire [INDEX_SELECT_SIZE-1:0]			preCacheIndex 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE) -: INDEX_SELECT_SIZE];
 	wire [TAG_SIZE-1:0]				tag 			= addrIn[(ADDR_LENGTH-1) -: TAG_SIZE];
+	reg  [INDEX_SELECT_SIZE-1:0]		cacheIndex = 0;
 	
 	/* CACHE CONTENTS 
 	    
@@ -174,6 +175,9 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 			 .write_trigger(LRUwrite), .read_trigger(LRUread), .reset);
 	
 	always @(*) begin
+		if (INDEX_SELECT_SIZE != 0)
+			cacheIndex = preCacheIndex;
+		
 		/* Something about making sure each reg is assigned a value every time
 		   the thing runs though the always block. */
 		dataUpOut = dataUpOut;
@@ -277,7 +281,6 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 						/* If the tags match and valid bit is 1 then data has
 						   been found */
 						if(tags[cacheIndex][j] == tag && validBits[cacheIndex][j] == 1) begin
-							
 							/* set LRU ports to indicate that a read has occurred */
 							assoIndex = j;
 							LRUread = 1;
@@ -381,7 +384,7 @@ module cache_testbench();
 	// cache parameters
 	parameter WRITE_MODE = WRITE_BACK;
 	
-	parameter INDEX_SIZEL1 = 2;
+	parameter INDEX_SIZEL1 = 1;
 	parameter INDEX_SIZEL2 = 4;
 	parameter SIZEMEM = 2048;
 	
@@ -473,13 +476,13 @@ module cache_testbench();
 		writeIn <= 0;			@(posedge clock);
 	
 		// Read tests
-//		for (integer i = 0; i<20; i++) begin
-//			addrIn = {$random} % 64;
-//			enableIn = 1;
-//			#(d*t);
-//			enableIn = 0;
-//			#t;
-//		end
+		for (integer i = 0; i<20; i++) begin
+			addrIn = i;//{$random} % 64;
+			enableIn = 1;
+			#(d*t);
+			enableIn = 0;
+			#t;
+		end
 		
 		// WRITE AROUND tests
 //		addrIn <= 0;				@(posedge clock);
@@ -546,97 +549,97 @@ module cache_testbench();
 //		enableIn <= 0;				@(posedge clock);
 //		#t;
 
-		// WRITE BACK TESTS
-		addrIn = 0;					@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		writeIn <= 1;				@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		writeIn <= 0;				@(posedge clock);
-		addrIn = 4;					@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 8;					@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 12;				@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 12;				@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 16;				@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 0;					@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 24;				@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 32;				@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 40;				@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 48;				@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 0;					@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 48;				@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
-		
-		addrIn = 0;					@(posedge clock);
-		enableIn <= 1;				@(posedge clock);
-		#(100*t);
-		enableIn <= 0;				@(posedge clock);
-		#t;
+//		// WRITE BACK TESTS
+//		addrIn = 0;					@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		writeIn <= 1;				@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		writeIn <= 0;				@(posedge clock);
+//		addrIn = 4;					@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 8;					@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 12;				@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 12;				@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 16;				@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 0;					@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 24;				@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 32;				@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 40;				@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 48;				@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 0;					@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 48;				@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
+//		
+//		addrIn = 0;					@(posedge clock);
+//		enableIn <= 1;				@(posedge clock);
+//		#(100*t);
+//		enableIn <= 0;				@(posedge clock);
+//		#t;
 		
 		#(10*t);
 		$stop;
