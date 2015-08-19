@@ -17,13 +17,14 @@
         ADDR_LENGTH: number of bits required to address memory
 			*REQUIREMENTS:
 				ADDR_LENGTH must be great enough to address all of the bits in
-				main memory, which should be larger then every cache above it
+				main memory, main memory should be larger then every cache
+				above it
         CACHE_DELAY: delay experienced when accessing cache
-        BLOCK_SIZE: number of bits in individual block in cache
+        BLOCK_SIZE: number of bits in an individual block in the cache
 			*REQUIREMENTS:
 			    BLOCK_SIZE can not be the same as the RETURN_SIZE, it must be
 				larger by a factor of 2
-	    RETURN_SIZE: number of bits returned to the higher cache
+	    RETURN_SIZE: number of bits returned to the higher cache, or user
 		    *REQUIREMENTS:
 				RETURN_SIZE can not be the same as the BLOCK_SIZE, it must be
 				smaller by a factor of 2
@@ -33,13 +34,13 @@
 				to generate a fully associative cache, have an ASSOCIATIVITY
 				such that the INDEX_SIZE is just 1
 	    WRITE_MODE:
-            WRITE_AROUND: when preforming write, simply invalidate spot and
-		        pass data down
-		    WRITE_THROUGH: when preforming write, write data to cache and pass
-		        data down
-		    WRITE_BACK: when preforming write, write data to cache and mark the
-		        pot using a "dirty bit"; when attempting to read data, pass the
-			    data down
+            WRITE_AROUND: when preforming a write, simply invalidate the spot
+				and pass data down
+		    WRITE_THROUGH: when preforming a write, write data to cache and
+				pass data down
+		    WRITE_BACK: when preforming a write, write data to cache and mark
+				the spot using a "dirty bit"; when attempting to read data,
+				pass the data down
 		      
 	Upward I/O:
         addrIn: address selected for cache operation
@@ -125,11 +126,19 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 	input 									writeCompleteIn;
 	output reg								writeOut;
 	
-	/* here the given address is broken down into its pieces (tag, cacheIndex, wordSelect)*/
+	/* address is broken down into its pieces (tag, cacheIndex, wordSelect)
+		NOTE: The preCacheIndex is a "work around" to allow for an index size
+		of 1 (a fully associative cache). This is required because when
+		creating the wire if the parameter INDEX_SIZE is 1, INDEX_SELECT_SIZE
+		is calculated to be 0. This creates a strange wire of size 2 where the
+		dimensions are from -1 to 0 and everything is flipped. A 1 is turned
+		into a 2 (01 --> 10), not sure why. So when the INDEX_SELECT_SIZE is 0,
+		the default cache index of 0 is used.
+	 */
 	wire [WORD_SELECT_SIZE-1:0]	wordSelect 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE - INDEX_SELECT_SIZE) -: WORD_SELECT_SIZE];
 	wire [INDEX_SELECT_SIZE-1:0]			preCacheIndex 	= addrIn[(ADDR_LENGTH - 1 - TAG_SIZE) -: INDEX_SELECT_SIZE];
 	wire [TAG_SIZE-1:0]				tag 			= addrIn[(ADDR_LENGTH-1) -: TAG_SIZE];
-	reg  [INDEX_SELECT_SIZE-1:0]		cacheIndex = 0;
+	reg  [INDEX_SELECT_SIZE-1:0]		cacheIndex;
 	
 	/* CACHE CONTENTS 
 	    
@@ -175,8 +184,6 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 			 .write_trigger(LRUwrite), .read_trigger(LRUread), .reset);
 	
 	always @(*) begin
-		if (INDEX_SELECT_SIZE != 0)
-			cacheIndex = preCacheIndex;
 		
 		/* Something about making sure each reg is assigned a value every time
 		   the thing runs though the always block. */
@@ -195,6 +202,12 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 		LRUread = LRUread;
 		LRUwrite = LRUwrite;
 		assoIndex = assoIndex;
+		
+		/* INDEX_SIZE of 1 fix, described above */
+		if (INDEX_SELECT_SIZE != 0)
+			cacheIndex = preCacheIndex;
+		else
+			cacheIndex = 0;
 		
 		/* If the write mode isn't WRITE_BACK, then writeCompleteOut will
 		   simply be passed up from the lower cache. In the case of 
@@ -221,10 +234,9 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 			enableOut = 0;
 			writeOut = 0;
 			
-			/* Reset various counters and flags */
+			/* Reset various flags */
 			LRUread = 0;
 			LRUwrite = 0;
-			counter = 0;
 		end
 		
 		/* If this cache is enabled and the lower cache is enabled, it means
@@ -369,9 +381,11 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 	end
 	
 	/* At every posedge if startCounter is true, increment the counter to track
-	   the cache delay. */
+	   the cache delay. If the cache isn't enabled, reset the counter to 0. */
 	always @(posedge clock) begin
-		if (startCounter) begin
+		if (~enableIn)
+			counter <= 0;
+		else if (startCounter) begin
 			counter <= counter + 1;
 		end
 	end
