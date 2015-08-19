@@ -86,6 +86,15 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1, RANDOM = 0)
 	int r = 0;
 	
 	always @(*) begin
+	
+		if(reset) begin
+			for(i = 0; i < INDEX_SIZE; i++) begin
+				for(j = 0; j < ASSOCIATIVITY; j++)begin
+					mem[i][j] = j;
+				end
+			end
+		end
+		
 		/* something something latches */
 		select = select;
 		mem = mem;
@@ -208,7 +217,7 @@ module lru_testbench();
 	
 	integer i;
 	initial begin
-		write_trigger <= 1'b0; read_trigger <= 1'b0; index = 1'b0; #10;
+		write_trigger <= 1'b0; read_trigger <= 1'b0; index = 1'b0; reset = 1'b0; #10;
 		write_trigger <= 1'b1; #10;
 		write_trigger <= 1'b0; #10;
 		write_trigger <= 1'b1; #10;
@@ -226,5 +235,8 @@ module lru_testbench();
 		write_trigger <= 1'b0; #10;
 		write_trigger <= 1'b1; #10;
 		write_trigger <= 1'b0; #10;
+		reset = 1'b1; #10;
+		reset = 1'b0; #10;
+		 #10; #10; #10; #10; #10;
 	end
 endmodule

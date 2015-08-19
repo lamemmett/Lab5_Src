@@ -184,6 +184,12 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 			 .write_trigger(LRUwrite), .read_trigger(LRUread), .reset);
 	
 	always @(*) begin
+		if(reset) begin
+			data = 'x;
+			tags = 'x;
+			validBits = 'x;
+			dirtyBits = 'x;
+		end
 		
 		/* Something about making sure each reg is assigned a value every time
 		   the thing runs though the always block. */
@@ -396,7 +402,7 @@ module cache_testbench();
 	parameter [1:0] WRITE_AROUND = 2'b00, WRITE_THROUGH = 2'b01, WRITE_BACK = 2'b10;
 	
 	// cache parameters
-	parameter WRITE_MODE = WRITE_BACK;
+	parameter WRITE_MODE = WRITE_THROUGH;
 	
 	parameter INDEX_SIZEL1 = 1;
 	parameter INDEX_SIZEL2 = 4;
@@ -497,6 +503,19 @@ module cache_testbench();
 			enableIn = 0;
 			#t;
 		end
+		
+		// write
+		writeIn <= 1;				@(posedge clock);
+		enableIn <= 1;				@(posedge clock);
+		#(100*t);
+		enableIn <= 0;				@(posedge clock);
+		#t;
+		
+		#(100*t);
+		// reset
+					@(posedge clock);
+		reset = 1;	@(posedge clock);
+					@(posedge clock);
 		
 		// WRITE AROUND tests
 //		addrIn <= 0;				@(posedge clock);

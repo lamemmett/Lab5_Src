@@ -78,6 +78,13 @@ module mainMem #(parameter SIZE=1024, ADDR_LENGTH=10, MEM_DELAY=10, BLOCK_SIZE=3
 	
 	/* Asynchronous output logic */
 	always @(*) begin
+		if (reset) begin
+			integer i;
+			for (i=0; i<SIZE; i++) begin
+				mem[i] = i;
+			end
+		end
+		
 		/*  */
 		dataUpOut = dataUpOut;
 		fetchComplete = fetchComplete;
