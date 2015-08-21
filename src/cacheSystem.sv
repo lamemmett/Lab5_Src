@@ -23,14 +23,21 @@ module cacheSystem #(parameter ID=1234567)
 	parameter BLOCK_SIZE_L2 = BLOCK_SIZE_L1 * ((2*((HASH/(10**1)) % 2)) + 2);
 	parameter BLOCK_SIZE_L3 = BLOCK_SIZE_L2 * ((2*((HASH/(10**2)) % 2)) + 2);
 	
-	// num cache indices is between 1-4
-	parameter NUM_CACHE_INDEX_L1 	= (((HASH/(10**0))%10) % 4) + 1;
-	parameter NUM_CACHE_INDEX_L2 	= (((HASH/(10**1))%10) % 4) + 1;
-	parameter NUM_CACHE_INDEX_L3 	= (((HASH/(10**2))%10) % 4) + 1;
+	// compute L1 parameters
+	parameter L1slots = ((HASH/(10**0))%10) % 15 + 2;
+	parameter NUM_CACHE_INDEX_L1 	= L1slots / ((((17*HASH/(10**0))%10) % L1slots) + 1);
+	parameter NUM_ASSO_INDEX_L1 	= L1slots / NUM_CACHE_INDEX_L1;
 	
-	parameter NUM_ASSO_INDEX_L1 	= (((17*HASH/(10**0))%10) % 4) + 1;
-	parameter NUM_ASSO_INDEX_L2 	= (((17*HASH/(10**1))%10) % 4) + 1;
-	parameter NUM_ASSO_INDEX_L3 	= (((17*HASH/(10**2))%10) % 4) + 1;
+	
+	// compute L2 parameters
+	parameter L2slots = ((HASH/(10**1))%10) % 15 + 2;
+	parameter NUM_CACHE_INDEX_L2 	= L2slots / ((((17*HASH/(10**1))%10) % L2slots) + 1);
+	parameter NUM_ASSO_INDEX_L2 	= L2slots / NUM_CACHE_INDEX_L2;
+	
+	// compute L3 parameters
+	parameter L3slots = ((HASH/(10**2))%10) % 15 + 2;
+	parameter NUM_CACHE_INDEX_L3 	= L3slots / ((((17*HASH/(10**2))%10) % L3slots) + 1);
+	parameter NUM_ASSO_INDEX_L3 	= L3slots / NUM_CACHE_INDEX_L3;
 	
 	// num associativity indices is between 1-4
 	parameter CACHE_DELAY_L1		= ((23*HASH/(10**0))%10);

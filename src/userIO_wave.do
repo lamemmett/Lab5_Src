@@ -5,6 +5,10 @@ add wave -noupdate /userIO/reset
 add wave -noupdate /userIO/write
 add wave -noupdate -radix unsigned /userIO/addr
 add wave -noupdate /userIO/enable
+add wave -noupdate /userIO/myCache/L1/data
+add wave -noupdate /userIO/myCache/L2/data
+add wave -noupdate -expand -subitemconfig {{/userIO/myCache/L3/data[0]} -expand} /userIO/myCache/L3/data
+add wave -noupdate /userIO/myCache/memory/mem
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {53933 ps} 0}
 quietly wave cursor active 1
@@ -22,4 +26,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {35840 ps} {107520 ps}
+WaveRestoreZoom {418029 ps} {489709 ps}
