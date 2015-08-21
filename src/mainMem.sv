@@ -78,6 +78,8 @@ module mainMem #(parameter SIZE=1024, ADDR_LENGTH=10, MEM_DELAY=10, BLOCK_SIZE=3
 	
 	/* Asynchronous output logic */
 	always @(*) begin
+		
+		/* Reset memory by re-initializing each location to hold its address */
 		if (reset) begin
 			integer i;
 			for (i=0; i<SIZE; i++) begin

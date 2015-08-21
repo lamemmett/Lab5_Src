@@ -86,7 +86,8 @@ module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1, RANDOM = 0)
 	int r = 0;
 	
 	always @(*) begin
-	
+		
+		/* Reset LRU mem back to initialized values */
 		if(reset) begin
 			for(i = 0; i < INDEX_SIZE; i++) begin
 				for(j = 0; j < ASSOCIATIVITY; j++)begin

@@ -184,6 +184,8 @@ module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10,
 			 .write_trigger(LRUwrite), .read_trigger(LRUread), .reset);
 	
 	always @(*) begin
+		
+		/* Reset the cache, clear data, tags, validBits, and diryBits */
 		if(reset) begin
 			data = 'x;
 			tags = 'x;
