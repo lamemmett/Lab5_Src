@@ -6,13 +6,14 @@ vlib work
 #     their own "vlog" line below.
 vlog "./userIO.sv"
 vlog "./cache.sv"
+vlog "./cacheSystem.sv"
 vlog "./lru.sv"
 vlog "./mainMem.sv"
 
 # Call vsim to invoke simulator
 #     Make sure the last item on the line is the name of the
 #     testbench module you want to execute.
-vsim -voptargs="+acc" -t 1ps -lib work userIO_testbench
+vsim -voptargs="+acc" -t 1ps -lib work userIO
 
 # Source the wave do file
 #     This should be the file that sets up the signal window for
