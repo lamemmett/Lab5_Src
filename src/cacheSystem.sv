@@ -2,7 +2,7 @@ module cacheSystem #(parameter ID=1234567)
 	(clock, reset, addrIn, enableIn, writeIn, dataIn, requestComplete, dataOut);
 	
 	parameter [1:0] WRITE_AROUND = 2'b00, WRITE_THROUGH = 2'b01, WRITE_BACK = 2'b10;
-	parameter ADDR_LENGTH = 16;
+	parameter ADDR_LENGTH = 12;
 	
 	input clock, reset, enableIn, writeIn;
 	input [31:0] dataIn;
@@ -24,25 +24,25 @@ module cacheSystem #(parameter ID=1234567)
 	parameter BLOCK_SIZE_L3 = BLOCK_SIZE_L2 * ((2*((HASH/(10**2)) % 2)) + 2);
 	
 	// compute L1 parameters
-	parameter L1slots = ((HASH/(10**0))%10) % 15 + 2;
-	parameter NUM_CACHE_INDEX_L1 	= L1slots / ((((17*HASH/(10**0))%10) % L1slots) + 1);
+	parameter L1slots = ((HASH/(10**0))%10) % 5 + 2;
+	parameter NUM_CACHE_INDEX_L1 	= (((17*HASH/(10**0))%10) % L1slots) + 1;
 	parameter NUM_ASSO_INDEX_L1 	= L1slots / NUM_CACHE_INDEX_L1;
 	
 	
 	// compute L2 parameters
-	parameter L2slots = ((HASH/(10**1))%10) % 15 + 2;
-	parameter NUM_CACHE_INDEX_L2 	= L2slots / ((((17*HASH/(10**1))%10) % L2slots) + 1);
+	parameter L2slots = ((HASH/(10**1))%10) % 4 + L1slots + 1;
+	parameter NUM_CACHE_INDEX_L2 	= (((17*HASH/(10**1))%10) % L2slots) + 1;
 	parameter NUM_ASSO_INDEX_L2 	= L2slots / NUM_CACHE_INDEX_L2;
 	
 	// compute L3 parameters
-	parameter L3slots = ((HASH/(10**2))%10) % 15 + 2;
-	parameter NUM_CACHE_INDEX_L3 	= L3slots / ((((17*HASH/(10**2))%10) % L3slots) + 1);
+	parameter L3slots = ((HASH/(10**2))%10) % 4 + L2slots + 1;
+	parameter NUM_CACHE_INDEX_L3 	= (((17*HASH/(10**2))%10) % L3slots) + 1;
 	parameter NUM_ASSO_INDEX_L3 	= L3slots / NUM_CACHE_INDEX_L3;
 	
 	// num associativity indices is between 1-4
-	parameter CACHE_DELAY_L1		= ((23*HASH/(10**0))%10);
-	parameter CACHE_DELAY_L2		= ((23*HASH/(10**1))%10) * 10;
-	parameter CACHE_DELAY_L3		= ((23*HASH/(10**2))%10) * 100;
+	parameter CACHE_DELAY_L1		= ((23*HASH/(10**0))%9) + 1;
+	parameter CACHE_DELAY_L2		= ((23*HASH/(10**1))%9 + 1) * 10;
+	parameter CACHE_DELAY_L3		= ((23*HASH/(10**2))%9 + 1) * 100;
 	parameter CACHE_DELAY_MEM		= 1000;
 	
 	// CONNECTING WIRES FOR THE CACHE SYSTEM
