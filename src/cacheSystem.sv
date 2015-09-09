@@ -30,12 +30,12 @@ module cacheSystem #(parameter ID=1234567)
 	
 	
 	// compute L2 parameters
-	parameter L2slots = ((HASH/(10**1))%10) % 4 + L1slots + 1;
+	parameter L2slots = ((HASH/(10**1))%10) % 4 + L1slots + 2;
 	parameter NUM_CACHE_INDEX_L2 	= 2 ** (((17*HASH/(10**1))%10) % $clog2(L2slots));
 	parameter NUM_ASSO_INDEX_L2 	= L2slots / NUM_CACHE_INDEX_L2;
 	
 	// compute L3 parameters
-	parameter L3slots = ((HASH/(10**2))%10) % 4 + L2slots + 1;
+	parameter L3slots = ((HASH/(10**2))%10) % 4 + L2slots + 4;
 	parameter NUM_CACHE_INDEX_L3 	= 2 ** (((17*HASH/(10**2))%10) % $clog2(L3slots));
 	parameter NUM_ASSO_INDEX_L3 	= L3slots / NUM_CACHE_INDEX_L3;
 	
