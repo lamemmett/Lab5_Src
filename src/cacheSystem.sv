@@ -1,8 +1,25 @@
+/* Cache system which generated the cache structure in accordance to the ID
+   It's a wrapper for the insideSystem since no writes */
 module cacheSystem #(parameter ID=1234567)
+	(clock, reset, addrIn, enableIn, requestComplete, dataOut);
+	
+	parameter ADDR_LENGTH = 15;
+	
+	input clock, reset, enableIn;
+	input [(ADDR_LENGTH-1):0] addrIn;
+	output requestComplete;
+	output [31:0] dataOut;
+	
+	insideSystem #(.ID(ID), .ADDR_LENGTH(ADDR_LENGTH)) rom
+		(.clock, .reset, .addrIn, .enableIn, .writeIn(1'b0), .dataIn('X), .requestComplete, .dataOut);
+
+endmodule
+
+/* vistigal module from write and read cache attempt */
+module insideSystem #(parameter ID=1234567, parameter ADDR_LENGTH = 15)
 	(clock, reset, addrIn, enableIn, writeIn, dataIn, requestComplete, dataOut);
 	
 	parameter [1:0] WRITE_AROUND = 2'b00, WRITE_THROUGH = 2'b01, WRITE_BACK = 2'b10;
-	parameter ADDR_LENGTH = 15;
 	
 	input clock, reset, enableIn, writeIn;
 	input [31:0] dataIn;
