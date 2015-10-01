@@ -1,3 +1,4 @@
+`protect
 /* Cache system which generated the cache structure in accordance to the ID
    It's a wrapper for the insideSystem since no writes */
 module cacheSystem #(parameter ID=1234567)
@@ -148,4 +149,5 @@ module insideSystem #(parameter ID=1234567, parameter ADDR_LENGTH = 15)
 	mainMem			#(.SIZE(2**ADDR_LENGTH), .ADDR_LENGTH(ADDR_LENGTH), .MEM_DELAY(CACHE_DELAY_MEM), .RETURN_SIZE(BLOCK_SIZE_L3)) 
 			memory	(addrInMem, dataUpOutMem, 	dataUpInMem, 	fetchCompleteMem, enableInMem, 	writeCompleteOutMem, writeInMem,
 						 clock, 		reset); 
-endmodule 
+endmodule
+`endprotect

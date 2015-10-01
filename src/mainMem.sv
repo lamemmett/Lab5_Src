@@ -1,3 +1,4 @@
+`protect
 /* This is the main memory module. It models a variable size direct mapped main
    memory. This module is used in conjunction with the cache module to simulate
    a multi layer memory structure.
@@ -31,7 +32,7 @@
 		reset: resets cache system (1 = reset)
 		
  */
-`protect
+
 module mainMem #(parameter SIZE=1024, ADDR_LENGTH=10, MEM_DELAY=10, BLOCK_SIZE=32, RETURN_SIZE=64)
 					 (addrIn, 	dataUpOut, 	dataUpIn, 		fetchComplete, enableIn, 	writeCompleteOut, writeIn,
 					  clock, reset);

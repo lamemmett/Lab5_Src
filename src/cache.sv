@@ -1,3 +1,4 @@
+`protect
 /* This is the cache module. It models a variable size and associativity cache
    with variable delay. This module will be used to simulate each cache level.
    
@@ -74,7 +75,7 @@
 	    clock: system clock
 		reset: resets cache system (1 = reset)
  */
-`protect
+
 module cache #(parameter INDEX_SIZE=1, ADDR_LENGTH=10, CACHE_DELAY=10, 
 	BLOCK_SIZE=128, RETURN_SIZE=32, ASSOCIATIVITY=2, WRITE_MODE=2'b10)
 	(addrIn, 	dataUpOut, 	dataUpIn, 		fetchComplete, enableIn, 	writeCompleteOut,   writeIn,

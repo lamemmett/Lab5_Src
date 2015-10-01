@@ -1,3 +1,4 @@
+`protect
 /* This is the least recently used module. This keeps track of the order in
    which a cache was accessed, and returns which location was the least 
    recently used. This module is contained in each cache module.
@@ -34,7 +35,7 @@
 			a read, updates the lru
 		reset: resets the lru (when the cache is reset)
  */
-`protect
+
 module lru #(parameter INDEX_SIZE = 4, ASSOCIATIVITY = 1, RANDOM = 0)
 	(index, asso_index, select, write_trigger, read_trigger, reset);
 	
